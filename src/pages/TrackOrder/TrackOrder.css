@@ -1,0 +1,112 @@
+.track-order {
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+  animation: fadeIn 0.5s;
+}
+
+.track-order h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #262626;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.track-order-description {
+  text-align: center;
+  color: #6a6a6a;
+  max-width: 600px;
+  margin: 0 auto 40px auto;
+  line-height: 1.6;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.order-item-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.order-item-details {
+  flex: 1;
+  min-width: 300px;
+}
+
+.order-item-details p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.order-item-items {
+  font-size: 1rem !important;
+  color: #333 !important;
+}
+
+.order-item-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.order-item-status p {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Tạo màu cho các trạng thái đơn hàng */
+.status {
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: white;
+}
+.status-food-processing {
+  background-color: #ffc107; /* Vàng */
+}
+.status-out-for-delivery {
+  background-color: #17a2b8; /* Xanh */
+}
+.status-delivered {
+  background-color: #28a745; /* Xanh lá */
+}
+
+.order-item-track-btn {
+  border: none;
+  padding: 10px 25px;
+  border-radius: 50px;
+  background-color: #333;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.order-item-track-btn:hover {
+  background-color: #555;
+}
+
+.no-orders {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #888;
+  margin-top: 50px;
+}
