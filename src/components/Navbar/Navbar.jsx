@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
+import PropTypes from "prop-types";
 import "./Navbar.css";
 import { assets } from "../../assets/frontend_assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
-import PropTypes from 'prop-types';
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("home");
@@ -17,54 +17,58 @@ const Navbar = ({ setShowLogin }) => {
     toast.success("Logout Successfully");
     navigate("/");
   };
-  
+
   return (
     <div className="navbar">
       <Link to="/">
         <img src={assets.logo} alt="" className="logo" />
       </Link>
       <ul className="navbar-menu">
-        <Link
-          to="/"
-          onClick={() => setMenu("home")}
-          className={menu === "home" ? "active" : ""}
-        >
-          home
-        </Link>
-        <a
-          href="#explore-menu"
-          onClick={() => setMenu("menu")}
-          className={menu === "menu" ? "active" : ""}
-        >
-          menu
-        </a>
-        
-        {/* === SỬA TỪ ĐÂY === */}
-
-        <Link
-          to="/restaurants" // 1. Đổi sang <Link> và trỏ đến "/restaurants"
-          onClick={() => setMenu("restaurant")} // 2. Cập nhật state 'menu'
-          className={menu === "restaurant" ? "active" : ""} // 3. Cập nhật logic 'active'
-        >
-          restaurant
-        </Link>
-        <Link
-          to="/track-orders" // 1. Đổi sang <Link> và trỏ đến "/track-orders"
-          onClick={() => setMenu("track-orders")} // 2. Cập nhật state 'menu'
-          className={menu === "track-orders" ? "active" : ""} // 3. Cập nhật logic 'active'
-        >
-          track orders
-        </Link>
-        
-        {/* === ĐẾN ĐÂY === */}
-        
-        <a
-          href="#footer"
-          onClick={() => setMenu("contact-us")}
-          className={menu === "contact-us" ? "active" : ""}
-        >
-          contact us
-        </a>
+        <li>
+          <Link
+            to="/"
+            onClick={() => setMenu("home")}
+            className={menu === "home" ? "active" : ""}
+          >
+            home
+          </Link>
+        </li>
+        <li>
+          <a
+            href="#explore-menu"
+            onClick={() => setMenu("menu")}
+            className={menu === "menu" ? "active" : ""}
+          >
+            menu
+          </a>
+        </li>
+        <li>
+          <Link
+            to="/restaurants"
+            onClick={() => setMenu("restaurant")}
+            className={menu === "restaurant" ? "active" : ""}
+          >
+            restaurant
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/track-orders"
+            onClick={() => setMenu("track-orders")}
+            className={menu === "track-orders" ? "active" : ""}
+          >
+            track orders
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/profile"
+            onClick={() => setMenu("profile")}
+            className={menu === "profile" ? "active" : ""}
+          >
+            profile
+          </Link>
+        </li>
       </ul>
       <div className="navbar-right">
         <img src={assets.search_icon} alt="" />
@@ -80,8 +84,9 @@ const Navbar = ({ setShowLogin }) => {
           <div className="navbar-profile">
             <img src={assets.profile_icon} alt="" />
             <ul className="nav-profile-dropdown">
-              <li onClick={() => navigate("/myorders")}><img src={assets.bag_icon} alt="" /><p>Orders</p></li>
-              <hr />
+              <li onClick={() => navigate("/profile")}><img src={assets.bag_icon} alt="" /><p>Profile</p></li>
+              <li onClick={() => navigate("/myorders")}> <img src={assets.bag_icon} alt="" /><p>Orders</p></li>
+              <li><hr /></li>
               <li onClick={logout}><img src={assets.logout_icon} alt="" /><p>Logout</p></li>
             </ul>
           </div>
@@ -89,7 +94,7 @@ const Navbar = ({ setShowLogin }) => {
       </div>
     </div>
   );
-}; // Dấu ngoặc đóng này đã có ở code của bạn, tôi giữ nguyên
+};
 
 Navbar.propTypes = {
   setShowLogin: PropTypes.func.isRequired,

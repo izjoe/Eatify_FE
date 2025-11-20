@@ -12,6 +12,7 @@ import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/MyOrders/MyOrders";
 import Restaurant from './pages/Restaurant/Restaurant';
 import TrackOrder from './pages/TrackOrder/TrackOrder';
+import Profile from './pages/Profile/Profile';
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -31,6 +32,7 @@ const App = () => {
           {/* === THÊM 2 DÒNG NÀY VÀO === */}
           <Route path="/restaurants" element={<Restaurant />} />
           <Route path="/track-orders" element={<TrackOrder />} />
+          <Route path="/profile" element={<Profile />} />
           
         </Routes>
       </div>
