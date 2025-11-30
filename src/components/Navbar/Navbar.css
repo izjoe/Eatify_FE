@@ -5,7 +5,8 @@
     align-items: center;
 }
 .navbar .logo{
-    width: 150px;
+    width: 150px; 
+    height: auto;
 }
 
 .navbar-menu{
@@ -15,10 +16,43 @@
     color: #49557e;
     font-size: 18px;
 }
+
+/* --- PHẦN CSS CHO SEARCH --- */
+.navbar-search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.search-input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    transition: 0.4s;
+    background: transparent;
+    color: #49557e;
+    font-size: 16px;
+}
+
+.search-input.active {
+    width: 200px; /* Độ rộng khi mở */
+    padding: 5px 10px;
+    opacity: 1;
+    border-bottom: 1px solid tomato;
+    margin-right: 10px;
+}
+
+.search-icon-btn {
+    cursor: pointer;
+}
+/* --------------------------- */
+
 .navbar-right{
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 30px; /* Đã chỉnh gap nhỏ lại chút cho đẹp */
 }
 
 .navbar button{
@@ -34,6 +68,14 @@
 
 .navbar button:hover{
     background-color: #fff4f2;
+}
+
+/* Sign In Button */
+.navbar-signin-btn {
+    background: white !important;
+    color: #49557e !important;
+    border: 1px solid tomato !important;
+    padding: 10px 30px !important;
 }
 
 .navbar .active{
@@ -89,45 +131,22 @@
 .nav-profile-dropdown li:hover{
     color: tomato;
 }
+
+/* Responsive */
 @media (max-width:1050px) {
-    .navbar .logo{
-        width: 140px;
-    } 
-    .navbar-menu{
-        gap: 20px;
-        font-size: 17px;
-    }
-    .navbar-right{
-        gap: 30px;
-    }
-    .navbar-right img{
-        width: 22px;
-    }
-    .navbar-right button{
-        padding: 8px 25px;
-    }
+    .navbar .logo{ width: 140px; } 
+    .navbar-menu{ gap: 20px; font-size: 17px; }
+    .navbar-right{ gap: 30px; }
+    .navbar-right img{ width: 22px; }
+    .navbar-right button{ padding: 8px 25px; }
 }
 @media (max-width:900px) {
-    .navbar .logo{
-        width: 120px;
-    } 
-    .navbar-menu{
-        gap: 15px;
-        font-size: 16px;
-    }
-    .navbar-right{
-        gap: 20px;
-    }
-    .navbar-right img{
-        width: 20px;
-    }
-    .navbar-right button{
-        padding: 7px 20px;
-        font-size: 15px;
-    }
+    .navbar .logo{ width: 120px; } 
+    .navbar-menu{ gap: 15px; font-size: 16px; }
+    .navbar-right{ gap: 20px; }
+    .navbar-right img{ width: 20px; }
+    .navbar-right button{ padding: 7px 20px; font-size: 15px; }
 }
 @media (max-width:750px) { 
-    .navbar-menu{
-        display: none;
-    }
+    .navbar-menu{ display: none; }
 }

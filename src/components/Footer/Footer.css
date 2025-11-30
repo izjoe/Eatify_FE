@@ -12,7 +12,7 @@
 .footer-content {
   width: 100%;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr; /* Cột trái chứa logo chiếm 2 phần, còn lại 1 phần */
   gap: 80px;
 }
 .footer-content-left,
@@ -23,6 +23,13 @@
   align-items: start;
   gap: 20px;
 }
+
+/* --- ĐOẠN MỚI THÊM VÀO --- */
+.footer-content-left > img {
+    width: 150px; /* Giới hạn chiều rộng logo */
+}
+/* -------------------------- */
+
 .footer-content-left li,
 .footer-content-center li,
 .footer-content-right li {

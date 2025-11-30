@@ -6,8 +6,10 @@ import { toast } from "react-toastify";
 
 const Profile = () => {
   const { url, token } = useContext(StoreContext);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
+  const [loading, setLoading] = useState(false); // Sửa thành false mặc định để đỡ bị trắng trang lâu
+  
+  // 1. Định nghĩa trạng thái rỗng ban đầu
+  const initialFormState = {
     name: "",
     email: "",
     dob: "",
@@ -15,38 +17,44 @@ const Profile = () => {
     gender: "",
     phone: "",
     profileImage: "",
-  });
+  };
 
+  const [form, setForm] = useState(initialFormState);
+
+  // 2. useEffect: Chạy mỗi khi token thay đổi
   useEffect(() => {
-    const load = async () => {
-      // try to load from backend if endpoint exists
-      if (token) {
-        try {
-          const resp = await axios.get(url + "/api/user/profile", {
-            headers: { token },
-          });
-          if (resp.data && resp.data.success && resp.data.data) {
-            setForm((f) => ({ ...f, ...resp.data.data }));
-            setLoading(false);
-            return;
-          }
-        } catch (err) {
-          // ignore, fallback to localStorage
-        }
+    const loadProfile = async () => {
+      // TRƯỜNG HỢP 1: Đã Logout (Không có token)
+      if (!token) {
+        setForm(initialFormState); // Reset form về rỗng ngay lập tức
+        setLoading(false);
+        return; 
       }
-      // fallback: load from localStorage
-      const local = localStorage.getItem("profileData");
-      if (local) {
-        try {
-          setForm(JSON.parse(local));
-        } catch (e) {
-          // ignore
+
+      // TRƯỜNG HỢP 2: Có token -> Gọi API lấy dữ liệu
+      setLoading(true);
+      try {
+        const resp = await axios.get(url + "/api/user/profile", {
+          headers: { token },
+        });
+
+        if (resp.data && resp.data.success) {
+          // Nếu backend có dữ liệu thì điền vào
+          setForm((prev) => ({ ...prev, ...resp.data.data }));
+        } else {
+          // Nếu backend chưa có profile (user mới), giữ nguyên form rỗng hoặc lấy email từ login nếu có
+          setForm(initialFormState);
         }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load profile");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    load();
-  }, [token, url]);
+
+    loadProfile();
+  }, [token, url]); // Chạy lại khi token thay đổi
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -65,28 +73,45 @@ const Profile = () => {
 
   const onSave = async (e) => {
     e.preventDefault();
-    // try backend update
-    if (token) {
-      try {
-        const resp = await axios.put(
-          url + "/api/user/profile",
-          { ...form },
-          { headers: { token } }
-        );
-        if (resp.data && resp.data.success) {
-          toast.success("Profile updated successfully");
-          return;
-        }
-      } catch (err) {
-        // ignore and fallback to local
-      }
+    
+    // Chỉ cho lưu khi đã đăng nhập
+    if (!token) {
+        toast.error("Please login to save profile");
+        return;
     }
-    // fallback: save to localStorage
-    localStorage.setItem("profileData", JSON.stringify(form));
-    toast.success("Profile saved locally (backend endpoint not available)");
+
+    try {
+      const resp = await axios.post( // Thường update profile dùng POST hoặc PUT tùy backend bạn viết
+        url + "/api/user/profile",
+        { ...form },
+        { headers: { token } }
+      );
+      if (resp.data && resp.data.success) {
+        toast.success("Profile updated successfully");
+      } else {
+        toast.error(resp.data.message || "Error updating profile");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    }
   };
 
   if (loading) return <div className="profile-page">Loading...</div>;
+
+  // Kiểm tra token - nếu chưa sign in thì hiển thị "Sign in first"
+  if (!token) {
+    return (
+      <div className="profile-page">
+        <div className="profile-signin-required">
+          <div className="signin-message">
+            <h2>Please Sign In First</h2>
+            <p>You need to sign in to view and edit your profile information.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-page">
@@ -101,16 +126,21 @@ const Profile = () => {
               <div className="avatar-placeholder">No Image</div>
             )}
             <input type="file" accept="image/*" onChange={onImage} />
+            <p style={{ fontSize: "12px", color: "#999", marginTop: "8px" }}>
+              Chọn ảnh
+              <br />
+              chưa chọn ảnh nào
+            </p>
           </div>
         </div>
         <div className="profile-right">
           <label>
             Full name
-            <input name="name" value={form.name} onChange={onChange} />
+            <input name="name" value={form.name} onChange={onChange} placeholder="Enter your name"/>
           </label>
           <label>
             Email
-            <input name="email" value={form.email} onChange={onChange} />
+            <input name="email" value={form.email} onChange={onChange} placeholder="Enter your email" />
           </label>
           <label>
             Date of birth
@@ -118,7 +148,7 @@ const Profile = () => {
           </label>
           <label>
             Phone
-            <input name="phone" value={form.phone} onChange={onChange} />
+            <input name="phone" value={form.phone} onChange={onChange} placeholder="Enter phone number"/>
           </label>
           <label>
             Gender
@@ -131,7 +161,7 @@ const Profile = () => {
           </label>
           <label>
             Address
-            <textarea name="address" value={form.address} onChange={onChange} />
+            <textarea name="address" value={form.address} onChange={onChange} placeholder="Enter your address"/>
           </label>
 
           <div className="profile-actions">
