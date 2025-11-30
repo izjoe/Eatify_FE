@@ -26,7 +26,7 @@ This application allows users to browse restaurants, explore food menus, manage 
 * **Routing:** `react-router-dom`
 * **State Management:** React Context API
 * **HTTP Client:** `axios`
-* **Styling:** Vanilla CSS / CSS Modules (as per `.css` files)
+* **Styling:** Vanilla CSS / CSS Modules
 * **Utilities:** `react-toastify`, `prop-types`
 
 ## 🚀 Getting Started
