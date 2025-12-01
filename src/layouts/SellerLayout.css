@@ -1,0 +1,31 @@
+.seller-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
+}
+
+.seller-layout-content {
+  margin-left: 230px;
+  flex: 1;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .seller-layout {
+    background-color: #1a1a1a;
+  }
+
+  .seller-layout-content {
+    background-color: #1a1a1a;
+  }
+}
+
+@media (max-width: 768px) {
+  .seller-layout-content {
+    margin-left: 200px;
+  }
+}

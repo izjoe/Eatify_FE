@@ -1,0 +1,131 @@
+.seller-orders {
+  padding: 30px 30px 30px 50px;
+}
+
+.orders-header {
+  margin-bottom: 30px;
+  margin-top: -8px;
+}
+
+.orders-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding-left: 10px;
+}
+
+.orders-container {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
+
+.orders-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table thead {
+  background-color: #f9f9f9;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.orders-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.orders-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.orders-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.orders-table td {
+  padding: 15px;
+  color: #666;
+  font-size: 13px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.confirmed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.action-btn.accept {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.action-btn.accept:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.action-btn.reject {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.action-btn.reject:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.action-btn.complete {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.action-btn.complete:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.status-badge.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.no-action {
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}

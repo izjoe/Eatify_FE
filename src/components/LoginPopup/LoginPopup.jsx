@@ -45,10 +45,27 @@ const LoginPopup = ({ setShowLogin }) => {
             localStorage.setItem("token", response.data.token);
             
             // --- CẬP NHẬT ROLE ---
-            if (response.data.role) {
-                setRole(response.data.role); // Cập nhật Context
-                localStorage.setItem("role", response.data.role); // Cập nhật LocalStorage
+            console.log("API Response:", response.data); // DEBUG
+            let roleToSet = response.data.role;
+            
+            // Nếu là Sign Up, dùng roleSelection từ form
+            if (currentState === "Sign Up") {
+                roleToSet = roleSelection;
+                console.log("Sign Up - Setting role to:", roleToSet); // DEBUG
+            } else {
+                // Nếu là Login và backend trả về role, dùng nó
+                if (response.data.role && response.data.role !== "user") {
+                    roleToSet = response.data.role;
+                    console.log("Login - Setting role from backend:", roleToSet); // DEBUG
+                } else {
+                    // Fallback: lấy từ localStorage nếu có
+                    roleToSet = localStorage.getItem("role") || "buyer";
+                    console.log("Login - Setting role from localStorage:", roleToSet); // DEBUG
+                }
             }
+            
+            setRole(roleToSet);
+            localStorage.setItem("role", roleToSet);
             // ---------------------
 
             if (response.data.data) {

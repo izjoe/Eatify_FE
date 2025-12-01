@@ -1,0 +1,252 @@
+.seller-settings {
+  padding: 30px 30px 30px 50px;
+}
+
+.settings-header {
+  margin-bottom: 30px;
+  margin-top: -8px;
+}
+
+.settings-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding-left: 10px;
+}
+
+.settings-container {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.settings-card.danger {
+  border-left: 4px solid #dc3545;
+}
+
+.settings-card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px 0;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #e0e0e0;
+  gap: 15px;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.setting-label p {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  font-size: 14px;
+}
+
+.setting-desc {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 28px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: tomato;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.theme-select {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.danger-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.danger-btn:hover {
+  background-color: #c82333;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Dark mode class */
+.seller-settings.dark-mode {
+  background-color: #1a1a1a;
+}
+
+.seller-settings.dark-mode .settings-header h1 {
+  color: #e0e0e0;
+}
+
+.seller-settings.dark-mode .settings-card {
+  background: #2a2a2a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.seller-settings.dark-mode .settings-card h2 {
+  color: #e0e0e0;
+}
+
+.seller-settings.dark-mode .setting-item {
+  border-bottom-color: #404040;
+}
+
+.seller-settings.dark-mode .setting-label p {
+  color: #e0e0e0;
+}
+
+.seller-settings.dark-mode .setting-desc {
+  color: #888;
+}
+
+.seller-settings.dark-mode .slider {
+  background-color: #555;
+}
+
+.seller-settings.dark-mode .slider:before {
+  background-color: #2a2a2a;
+}
+
+.seller-settings.dark-mode input:checked + .slider {
+  background-color: tomato;
+}
+
+.seller-settings.dark-mode .theme-select {
+  background-color: #333;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+.seller-settings.dark-mode .theme-select option {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .seller-settings {
+    background-color: #1a1a1a;
+  }
+
+  .settings-header h1 {
+    color: #e0e0e0;
+  }
+
+  .settings-card {
+    background: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .settings-card h2 {
+    color: #e0e0e0;
+  }
+
+  .setting-item {
+    border-bottom-color: #404040;
+  }
+
+  .setting-label p {
+    color: #e0e0e0;
+  }
+
+  .setting-desc {
+    color: #888;
+  }
+
+  .slider {
+    background-color: #555;
+  }
+
+  .slider:before {
+    background-color: #2a2a2a;
+  }
+
+  input:checked + .slider {
+    background-color: tomato;
+  }
+
+  .theme-select {
+    background-color: #333;
+    border-color: #404040;
+    color: #e0e0e0;
+  }
+
+  .theme-select option {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+  }
+}

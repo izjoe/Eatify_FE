@@ -9,13 +9,13 @@ const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   // Lưu ý: Bạn nên dùng process.env.VITE_API_URL nếu có, còn không thì giữ link cứng này
   const url = "https://food-delivery-backend-5b6g.onrender.com"; 
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [food_list, setFoodList] = useState([]);
 
   // --- 1. THÊM STATE SEARCH VÀ ROLE ---
   const [searchTerm, setSearchTerm] = useState("");
   // Mặc định role là buyer nếu không tìm thấy trong localStorage
-  const [role, setRole] = useState(localStorage.getItem("role") || "buyer");
+  const [role, setRole] = useState(() => localStorage.getItem("role") || "buyer");
   // ------------------------------------
 
   const addToCart = async (itemId) => {
