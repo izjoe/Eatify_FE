@@ -1,60 +1,53 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import "./Profile.css";
 import axios from "axios";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
 
+const initialFormState = {
+  name: "",
+  email: "",
+  dob: "",
+  address: "",
+  gender: "",
+  phone: "",
+  profileImage: "",
+};
+
 const Profile = () => {
   const { url, token } = useContext(StoreContext);
-  const [loading, setLoading] = useState(false); // Sửa thành false mặc định để đỡ bị trắng trang lâu
-  
-  // 1. Định nghĩa trạng thái rỗng ban đầu
-  const initialFormState = {
-    name: "",
-    email: "",
-    dob: "",
-    address: "",
-    gender: "",
-    phone: "",
-    profileImage: "",
-  };
-
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(initialFormState);
 
-  // 2. useEffect: Chạy mỗi khi token thay đổi
+  const loadProfile = useCallback(async () => {
+    if (!token) {
+      setForm(initialFormState);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const resp = await axios.get(url + "/api/user/profile", {
+        headers: { token },
+      });
+
+      if (resp.data && resp.data.success) {
+        setForm((prev) => ({ ...prev, ...resp.data.data }));
+      } else {
+        setForm(initialFormState);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, url]);
+
   useEffect(() => {
-    const loadProfile = async () => {
-      // TRƯỜNG HỢP 1: Đã Logout (Không có token)
-      if (!token) {
-        setForm(initialFormState); // Reset form về rỗng ngay lập tức
-        setLoading(false);
-        return; 
-      }
-
-      // TRƯỜNG HỢP 2: Có token -> Gọi API lấy dữ liệu
-      setLoading(true);
-      try {
-        const resp = await axios.get(url + "/api/user/profile", {
-          headers: { token },
-        });
-
-        if (resp.data && resp.data.success) {
-          // Nếu backend có dữ liệu thì điền vào
-          setForm((prev) => ({ ...prev, ...resp.data.data }));
-        } else {
-          // Nếu backend chưa có profile (user mới), giữ nguyên form rỗng hoặc lấy email từ login nếu có
-          setForm(initialFormState);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load profile");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadProfile();
-  }, [token, url]); // Chạy lại khi token thay đổi
+  }, [loadProfile]);
 
   const onChange = (e) => {
     const { name, value } = e.target;

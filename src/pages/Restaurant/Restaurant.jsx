@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import './Restaurant.css';
 import { assets } from '../../assets/frontend_assets/assets';
 import { useNavigate } from 'react-router-dom';
@@ -12,12 +12,12 @@ const Restaurant = () => {
   const navigate = useNavigate();
 
   // Placeholder restaurants data
-  const placeholderRestaurants = [
+  const placeholderRestaurants = useMemo(() => [
     { _id: '1', name: 'Nhà hàng 1', distance: '1.2', rating: '4.5', image: assets.food_1 },
     { _id: '2', name: 'Nhà hàng 2', distance: '1.5', rating: '4.3', image: assets.food_2 },
     { _id: '3', name: 'Nhà hàng 3', distance: '2.0', rating: '4.7', image: assets.food_3 },
     { _id: '4', name: 'Nhà hàng 4', distance: '1.8', rating: '4.6', image: assets.food_4 }
-  ];
+  ], []);
 
   const categories = [
     { name: 'Appetizers', count: 52 },
@@ -29,7 +29,7 @@ const Restaurant = () => {
     { name: 'BBQ', count: 9 }
   ];
 
-  const fetchRestaurants = async () => {
+  const fetchRestaurants = useCallback(async () => {
     try {
       // Tạm thời dùng placeholder data
       setRestaurants(placeholderRestaurants);
@@ -37,11 +37,11 @@ const Restaurant = () => {
     } catch (error) {
       console.error("Error fetching restaurants:", error);
     }
-  };
+  }, [placeholderRestaurants]);
 
   useEffect(() => {
     fetchRestaurants();
-  }, []);
+  }, [fetchRestaurants]);
 
   useEffect(() => {
     let filtered = restaurants;

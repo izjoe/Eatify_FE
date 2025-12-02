@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import './TrackOrder.css';
 import axios from 'axios';
 import { StoreContext } from '../../context/StoreContext';
@@ -9,7 +9,7 @@ const TrackOrder = () => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
 
-  const fetchUserOrders = async () => {
+  const fetchUserOrders = useCallback(async () => {
     if (token) {
       try {
         const response = await axios.get('http://localhost:4000/api/order/userorders', {
@@ -34,11 +34,11 @@ const TrackOrder = () => {
         ]);
       }
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchUserOrders();
-  }, [token]);
+  }, [fetchUserOrders]);
 
   const renderItems = (items) => {
     return items.map((item) => `${item.quantity}x ${item.name}`).join(", ");
