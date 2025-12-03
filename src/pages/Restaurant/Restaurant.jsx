@@ -1,68 +1,58 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useContext } from 'react';
 import './Restaurant.css';
 import { assets } from '../../assets/frontend_assets/assets';
 import { useNavigate } from 'react-router-dom';
+import { StoreContext } from '../../context/StoreContext';
 
 const Restaurant = () => {
-  const [restaurants, setRestaurants] = useState([]);
+  const { food_list, url } = useContext(StoreContext);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [filteredFoods, setFilteredFoods] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState('');
   const navigate = useNavigate();
 
-  // Placeholder restaurants data
-  const placeholderRestaurants = useMemo(() => [
-    { _id: '1', name: 'Nhà hàng 1', distance: '1.2', rating: '4.5', image: assets.food_1 },
-    { _id: '2', name: 'Nhà hàng 2', distance: '1.5', rating: '4.3', image: assets.food_2 },
-    { _id: '3', name: 'Nhà hàng 3', distance: '2.0', rating: '4.7', image: assets.food_3 },
-    { _id: '4', name: 'Nhà hàng 4', distance: '1.8', rating: '4.6', image: assets.food_4 }
-  ], []);
+  // Dynamic categories from food_list
+  const categories = useMemo(() => {
+    if (!food_list || food_list.length === 0) return [];
+    
+    const categoryMap = {};
+    food_list.forEach(item => {
+      const cat = item.category || 'Uncategorized';
+      categoryMap[cat] = (categoryMap[cat] || 0) + 1;
+    });
+    
+    return Object.entries(categoryMap).map(([name, count]) => ({
+      name,
+      count
+    })).sort((a, b) => b.count - a.count);
+  }, [food_list]);
 
-  const categories = [
-    { name: 'Appetizers', count: 52 },
-    { name: 'Beverages', count: 33 },
-    { name: 'Chicken', count: 19 },
-    { name: 'Chinese', count: 15 },
-    { name: 'Breakfast', count: 14 },
-    { name: 'Uncategorized', count: 3 },
-    { name: 'BBQ', count: 9 }
-  ];
-
-  const fetchRestaurants = useCallback(async () => {
-    try {
-      // Tạm thời dùng placeholder data
-      setRestaurants(placeholderRestaurants);
-      setFilteredRestaurants(placeholderRestaurants);
-    } catch (error) {
-      console.error("Error fetching restaurants:", error);
-    }
-  }, [placeholderRestaurants]);
-
+  // Filter foods by category
   useEffect(() => {
-    fetchRestaurants();
-  }, [fetchRestaurants]);
+    if (!food_list) return;
+    
+    let filtered = food_list;
 
-  useEffect(() => {
-    let filtered = restaurants;
-
+    // Filter by search term
     if (searchTerm.trim() !== '') {
-      filtered = filtered.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(food =>
+        food.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(restaurant =>
-        restaurant.category === selectedCategory
+    // Filter by category
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(food =>
+        food.category === selectedCategory
       );
     }
 
-    setFilteredRestaurants(filtered);
-  }, [searchTerm, selectedCategory, restaurants]);
+    setFilteredFoods(filtered);
+  }, [searchTerm, selectedCategory, food_list]);
 
-  const handleRestaurantClick = (restaurantId) => {
-    navigate(`/restaurant/${restaurantId}`);
+  const handleFoodClick = (foodId) => {
+    navigate(`/food/${foodId}`);
   };
 
   return (
@@ -103,6 +93,17 @@ const Restaurant = () => {
 
           {/* Categories */}
           <div className='categories-list'>
+            <label className='category-item'>
+              <input
+                type='radio'
+                name='category'
+                value='All'
+                onChange={() => setSelectedCategory('All')}
+                checked={selectedCategory === 'All'}
+              />
+              <span className='category-name'>All</span>
+              <span className='category-count'>({food_list?.length || 0})</span>
+            </label>
             {categories.map((category, index) => (
               <label key={index} className='category-item'>
                 <input
@@ -122,39 +123,30 @@ const Restaurant = () => {
         {/* Main Content */}
         <div className='restaurant-main'>
           <div className='restaurants-header'>
-            <h2>{filteredRestaurants.length}+ Restaurants</h2>
+            <h2>{filteredFoods.length} Dishes</h2>
             <div className='restaurants-count-divider'></div>
           </div>
 
-          <div className='restaurants-grid'>
-            {filteredRestaurants.map((restaurant) => (
+          <div className='foods-grid'>
+            {filteredFoods.map((food) => (
               <div
-                key={restaurant._id}
-                className='restaurant-card'
-                onClick={() => handleRestaurantClick(restaurant._id)}
+                key={food._id}
+                className='food-card'
+                onClick={() => handleFoodClick(food._id)}
               >
-                <div className='restaurant-card-image'>
-                  <img src={restaurant.image} alt={restaurant.name} />
+                <div className='food-card-image'>
+                  <img src={url + "/images/" + food.image} alt={food.name} />
+                  <div className='add-btn'>+</div>
                 </div>
 
-                <div className='restaurant-card-body'>
-                  <h3>{restaurant.name}</h3>
-                  
-                  <div className='restaurant-card-info'>
-                    <div className='info-row'>
-                      <span className='location-icon-small'>📍</span>
-                      <span className='distance'>{restaurant.distance || '1.2'} km</span>
-                    </div>
-                    <div className='info-row top-right'>
-                      <span className='distance'>{restaurant.distance || '1.2'} km</span>
-                    </div>
-                    <div className='info-row'>
-                      <span className='location-icon-small'>📍</span>
-                      <span className='distance'>{restaurant.distance || '1.2'} km</span>
-                    </div>
-                    <div className='info-row bottom-right'>
+                <div className='food-card-body'>
+                  <h3>{food.name}</h3>
+                  <p className='food-description'>{food.description}</p>
+                  <div className='food-price-rating'>
+                    <span className='food-price'>{(food.price * 2500).toLocaleString('vi-VN')}đ</span>
+                    <div className='food-rating'>
                       <span className='star-icon'>⭐</span>
-                      <span className='rating'>{restaurant.rating || '4.5'}</span>
+                      <span>4.5</span>
                     </div>
                   </div>
                 </div>
@@ -162,9 +154,9 @@ const Restaurant = () => {
             ))}
           </div>
 
-          {filteredRestaurants.length === 0 && (
+          {filteredFoods.length === 0 && (
             <div className='no-restaurants'>
-              <p>No restaurants found</p>
+              <p>No dishes found</p>
             </div>
           )}
         </div>

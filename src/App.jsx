@@ -13,6 +13,8 @@ import Profile from './pages/Profile/Profile'
 import Restaurants from './pages/Restaurant/Restaurant'
 import TrackOrder from './pages/TrackOrder/TrackOrder'
 import MyShop from './pages/MyShop'
+import Menu from './pages/Menu/Menu'
+import FoodDetail from './pages/FoodDetail/FoodDetail'
 
 // Seller Pages
 import SellerLayout from './layouts/SellerLayout'
@@ -63,6 +65,7 @@ const App = () => {
         <Navbar setShowLogin={setShowLogin} />
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/menu' element={<Menu />} />
           <Route path='/cart' element={<Cart />} />
           <Route path='/order' element={<PlaceOrder />} />
           <Route path='/verify' element={<Verify />} />
@@ -71,6 +74,7 @@ const App = () => {
           <Route path='/restaurants' element={<Restaurants />} />
           <Route path='/track-orders' element={<TrackOrder />} />
           <Route path='/my-shop' element={<MyShop />} />
+          <Route path='/food/:id' element={<FoodDetail />} />
         </Routes>
       </div>
       <Footer />

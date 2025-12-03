@@ -1,0 +1,350 @@
+.food-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.back-btn {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #f5f5f5;
+  transform: translateX(-5px);
+}
+
+.loading {
+  text-align: center;
+  padding: 100px 0;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.food-detail-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Left Side - Image */
+.food-detail-left {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.food-image-wrapper {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.food-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Right Side - Info */
+.food-detail-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.food-badge {
+  display: inline-block;
+  width: fit-content;
+}
+
+.badge-text {
+  background: #fff3e0;
+  color: #ff6b35;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.food-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #262626;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.food-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff9e6;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.star {
+  font-size: 1.2rem;
+}
+
+.rating-text {
+  font-weight: 700;
+  color: #262626;
+  font-size: 1rem;
+}
+
+.reviews {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.food-description-section {
+  padding: 20px 0;
+  border-top: 1px solid #ececec;
+  border-bottom: 1px solid #ececec;
+}
+
+.food-description-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #262626;
+  margin-bottom: 12px;
+}
+
+.food-description-section p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.description-extra {
+  color: #999;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.food-price-section {
+  padding: 16px 0;
+}
+
+.price-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.price-label {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.price-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: tomato;
+}
+
+/* Quantity Section */
+.quantity-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.quantity-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f5f5f5;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.qty-btn {
+  background: white;
+  border: 1px solid #ddd;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+  background: tomato;
+  color: white;
+  border-color: tomato;
+}
+
+.qty-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #262626;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.add-to-cart-btn {
+  flex: 1;
+  background: tomato;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+  background: #ff6347;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 99, 71, 0.3);
+}
+
+/* Promotions */
+.promotions-section {
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.promotions-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #262626;
+  margin-bottom: 16px;
+}
+
+.promo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px dashed #ffb84d;
+}
+
+.promo-icon {
+  font-size: 1.5rem;
+}
+
+.promo-text {
+  flex: 1;
+}
+
+.promo-title {
+  font-size: 0.95rem;
+  color: #262626;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.copy-code-btn {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.copy-code-btn:hover {
+  background: #f5f5f5;
+  border-color: tomato;
+}
+
+/* Service Info */
+.service-info {
+  display: flex;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid #ececec;
+  margin-top: 10px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.service-icon {
+  font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .food-detail-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 20px;
+  }
+
+  .food-title {
+    font-size: 1.5rem;
+  }
+
+  .price-value {
+    font-size: 1.6rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .service-info {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

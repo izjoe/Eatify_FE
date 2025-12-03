@@ -74,6 +74,16 @@
   margin-bottom: 12px;
 }
 
+.profile-image-display {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  display: block;
+}
+
 .avatar-placeholder {
   color: #999;
   padding: 40px 0;
@@ -112,6 +122,14 @@
   font-family: 'Outfit', sans-serif;
 }
 
+.profile-right input:disabled,
+.profile-right textarea:disabled,
+.profile-right select:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+
 .profile-right input:focus,
 .profile-right textarea:focus,
 .profile-right select:focus {
@@ -122,11 +140,11 @@
 
 .profile-actions {
   margin-top: 12px;
+  display: flex;
+  gap: 12px;
 }
 
-.btn-save {
-  background-color: tomato;
-  color: white;
+.btn-save, .btn-edit, .btn-cancel {
   padding: 12px 24px;
   border: none;
   border-radius: 6px;
@@ -137,8 +155,31 @@
   transition: background-color 0.3s ease;
 }
 
+.btn-save {
+  background-color: tomato;
+  color: white;
+}
+
 .btn-save:hover {
   background-color: #ff6347;
+}
+
+.btn-edit {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #45a049;
+}
+
+.btn-cancel {
+  background-color: #999;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #777;
 }
 
 /* Responsive */

@@ -1,13 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import "./FoodItem.css";
 import { assets } from "../../assets/frontend_assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 
 const FoodItem = ({ id, name, price, description, image }) => {
-  const {cartItems,addToCart,removeFromCart,url}=useContext(StoreContext); 
+  const {cartItems,addToCart,removeFromCart,url}=useContext(StoreContext);
+  const navigate = useNavigate();
+
+  const handleCardClick = (e) => {
+    // Don't navigate if clicking on add/remove buttons
+    if (e.target.closest('.food-item-counter') || e.target.closest('.add')) {
+      return;
+    }
+    navigate(`/food/${id}`);
+  };
 
   return (
-    <div className="food-item">
+    <div className="food-item" onClick={handleCardClick}>
       <div className="food-item-img-container">
         <img src={url+"/images/"+image} alt="" className="food-item-image" />
         {!cartItems[id] ? (
@@ -31,7 +41,7 @@ const FoodItem = ({ id, name, price, description, image }) => {
           <img src={assets.rating_starts} alt="" />
         </div>
         <p className="food-item-desc">{description}</p>
-        <p className="food-item-price">${price}</p>
+        <p className="food-item-price">{(price * 2500).toLocaleString('vi-VN')}đ</p>
       </div>
     </div>
   );

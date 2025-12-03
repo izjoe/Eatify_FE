@@ -27,6 +27,11 @@ const Navbar = ({ setShowLogin }) => {
     }
   };
 
+  const handleMenuClick = () => {
+    setMenu("menu");
+    navigate('/menu');
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -43,7 +48,7 @@ const Navbar = ({ setShowLogin }) => {
       </Link>
       <ul className="navbar-menu">
         <li><Link to="/" onClick={() => setMenu("home")} className={menu === "home" ? "active" : ""}>home</Link></li>
-        <li><a href="#explore-menu" onClick={() => setMenu("menu")} className={menu === "menu" ? "active" : ""}>menu</a></li>
+        <li><span onClick={handleMenuClick} className={menu === "menu" ? "active menu-link" : "menu-link"}>menu</span></li>
         <li><Link to="/restaurants" onClick={() => setMenu("restaurant")} className={menu === "restaurant" ? "active" : ""}>restaurant</Link></li>
         <li><Link to="/track-orders" onClick={() => setMenu("track-orders")} className={menu === "track-orders" ? "active" : ""}>track orders</Link></li>
         <li><Link to="/profile" onClick={() => setMenu("profile")} className={menu === "profile" ? "active" : ""}>profile</Link></li>
