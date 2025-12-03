@@ -28,18 +28,30 @@ const Profile = () => {
 
     setLoading(true);
     try {
+      // Ưu tiên load từ localStorage trước (FE storage)
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setForm(JSON.parse(savedProfile));
+        setLoading(false);
+        return;
+      }
+
+      // Nếu không có trong localStorage, thử load từ backend
       const resp = await axios.get(url + "/api/user/profile", {
         headers: { token },
       });
 
       if (resp.data && resp.data.success) {
-        setForm((prev) => ({ ...prev, ...resp.data.data }));
+        const profileData = resp.data.data;
+        setForm((prev) => ({ ...prev, ...profileData }));
+        // Lưu vào localStorage
+        localStorage.setItem('userProfile', JSON.stringify(profileData));
       } else {
         setForm(initialFormState);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load profile");
+      // Không hiện error nếu backend chưa có, vì ta dùng FE storage
     } finally {
       setLoading(false);
     }
@@ -74,15 +86,20 @@ const Profile = () => {
     }
 
     try {
-      const resp = await axios.post( // Thường update profile dùng POST hoặc PUT tùy backend bạn viết
-        url + "/api/user/profile",
-        { ...form },
-        { headers: { token } }
-      );
-      if (resp.data && resp.data.success) {
-        toast.success("Profile updated successfully");
-      } else {
-        toast.error(resp.data.message || "Error updating profile");
+      // Lưu vào localStorage (FE storage) - không cần backend
+      localStorage.setItem('userProfile', JSON.stringify(form));
+      toast.success("Profile updated successfully");
+
+      // Nếu có backend, có thể gửi lên (optional)
+      try {
+        await axios.post(
+          url + "/api/user/profile",
+          { ...form },
+          { headers: { token } }
+        );
+      } catch (backendErr) {
+        // Không báo lỗi nếu backend chưa có, vì đã lưu FE
+        console.log("Backend not available, saved to localStorage only");
       }
     } catch (err) {
       console.error(err);

@@ -1,4 +1,4 @@
-# 🍔 Eatify - Food Ordering Platform
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    # 🍔 Eatify - Food Ordering Platform
 
 > A complete food ordering platform with dual-mode functionality for both **Buyers** and **Sellers**, built with React and Vite.
 
@@ -19,8 +19,7 @@
 - [Seller Dashboard](#seller-dashboard)
 - [Project Structure](#project-structure)
 - [API Integration](#api-integration)
-- [Testing](#testing)
-- [Deployment](#deployment)
+- [Documentation](#documentation)
 
 ---
 
@@ -46,7 +45,7 @@ Eatify is a modern food ordering platform that provides two distinct experiences
 ### 🛍️ Buyer Features
 
 * **Dynamic Routing**: Complete Single Page Application (SPA) experience using `react-router-dom`
-* **Component-Based**: Reusable React components for UI elements
+* **Component-Based**: Reusable React components for UI elements like `Navbar`, `Footer`, and `LoginPopup`
 * **Global State Management**: React Context API (`StoreContext`) for cart, authentication, and global state
 * **API Integration**: `axios` for backend communication
 * **User Authentication**: Secure login and registration with JWT token handling
@@ -168,529 +167,281 @@ npm run dev
 # Open browser at http://localhost:5173
 ```
 
-### Development Commands
+---
 
-```bash
-# Start development server
-npm run dev
+# 🔄 Changelog
 
-# Build for production
-npm run build
+## Version 1.1.0 - December 4, 2025
 
-# Preview production build
-npm run preview
-```
+### ✨ Các Tính Năng Mới & Sửa Lỗi
 
 ---
 
-## 🛍️ Buyer Features
+## 1. ✅ Nút "View Menu" Tự Động Cuộn Tới Menu
 
-### User Journey
+**File thay đổi:** `src/components/Header/Header.jsx`
 
-1. **Browse**: Explore restaurants and food menus
-2. **Add to Cart**: Select items and quantities
-3. **Checkout**: Place order with delivery details
-4. **Track**: Monitor order status in real-time
-5. **History**: View past orders
+**Mô tả:**
+- Khi nhấn nút "View Menu" trên banner, trang sẽ tự động cuộn mượt mà đến phần menu (section có id `explore-menu`)
+- Sử dụng `scrollIntoView` với `behavior: 'smooth'` để tạo hiệu ứng cuộn mượt
 
-### Key Pages
-
-- **Home** (`/`): Landing page with featured items
-- **Menu** (`/menu`): Browse food categories
-- **Restaurants** (`/restaurants`): Partner restaurant listings
-- **Cart** (`/cart`): Review and manage cart items
-- **My Orders** (`/myorders`): Order history
-- **Track Order** (`/track-orders`): Real-time tracking
-- **Place Order** (`/place-order`): Checkout and payment
-- **Profile** (`/profile`): User profile management
-
----
-
-## 🏪 Seller Dashboard
-
-### How It Works
-
-```
-User Registration Flow:
-────────────────────────────────────
-1. Click "Sign In" button
-2. Select "Create a new account"
-3. Fill in registration form
-4. ✨ Choose "Sell Food" role ← KEY STEP
-5. Submit form
-6. Role saved to localStorage
-7. App.jsx detects role === 'seller'
-8. ✅ Seller Dashboard loads with sidebar
-```
-
-### Visual Layout
-
-```
-┌────────────────┬──────────────────────────────────────┐
-│   SIDEBAR      │         CONTENT AREA                 │
-│   (230px)      │                                      │
-│                │  ┌─────────────────────────────────┐ │
-│ eEatify        │  │  Dashboard / Page Content       │ │
-│                │  │                                 │ │
-│ 🏠 Dashboard   │  │  Stats, Tables, Forms          │ │
-│ 📋 Menu        │  │  Charts, Cards, etc.           │ │
-│ 🛒 Orders      │  │                                 │ │
-│ 📊 Revenue     │  │  (Scrollable)                  │ │
-│ 👤 Profile     │  │                                 │ │
-│ 🎯 Promotions  │  │                                 │ │
-│ ⚙️ Settings     │  │                                 │ │
-│                │  └─────────────────────────────────┘ │
-│ [Logout]       │                                      │
-└────────────────┴──────────────────────────────────────┘
-```
-
-### Authentication Flow
-
+**Code:**
 ```javascript
-// In App.jsx
-const { role } = useContext(StoreContext)
-
-if (role === 'seller') {
-  return <SellerLayout>
-    {/* Seller Dashboard with Sidebar */}
-  </SellerLayout>
-} else {
-  return <div className='app'>
-    {/* Buyer Interface */}
-  </div>
-}
-```
-
-### Testing the Seller Dashboard
-
-```bash
-# 1. Start the dev server
-npm run dev
-
-# 2. Test seller registration
-- Click "Sign in"
-- Click "Create a new account"
-- Fill in the form
-- ⚠️ IMPORTANT: Select "Sell Food" radio button
-- Submit
-
-# 3. Verify
-✓ Sidebar appears on the left
-✓ Dashboard page loads
-✓ All menu items are accessible
-
-# 4. Test navigation
-- Click each menu item in the sidebar
-- Verify all 7 pages load correctly
-
-# 5. Test logout
-- Click profile icon → Logout
-- Should return to buyer mode
-- localStorage cleared
-```
-
-### Seller Routes
-
-| Route | Page | Description |
-|-------|------|-------------|
-| `/seller-dashboard` | Dashboard | Stats and overview |
-| `/manage-menu` | Menu Management | CRUD operations for menu |
-| `/seller-orders` | Orders | Manage customer orders |
-| `/seller-revenue` | Revenue | Analytics and reports |
-| `/seller-profile` | Profile | Store information |
-| `/seller-promotions` | Promotions | Manage promotions |
-| `/seller-settings` | Settings | Account settings |
-
----
-
-## 📁 Project Structure
-
-```
-Eatify_FE/
-├── public/                      # Static assets
-├── src/
-│   ├── assets/                  # Images, icons
-│   │   └── frontend_assets/
-│   │
-│   ├── components/              # Reusable components
-│   │   ├── ExploreMenu/
-│   │   ├── FoodDisplay/
-│   │   ├── FoodItem/
-│   │   ├── Footer/
-│   │   ├── Header/
-│   │   ├── LoginPopup/
-│   │   ├── Navbar/
-│   │   └── SellerNavbar/       # Seller sidebar (NEW)
-│   │
-│   ├── context/                 # Global state
-│   │   └── StoreContext.jsx    # Role, auth, cart
-│   │
-│   ├── layouts/                 # Layout components (NEW)
-│   │   ├── SellerLayout.jsx
-│   │   └── SellerLayout.css
-│   │
-│   ├── pages/                   # Page components
-│   │   ├── Cart/
-│   │   ├── Home/
-│   │   ├── MyOrders/
-│   │   ├── PlaceOrder/
-│   │   ├── Profile/
-│   │   ├── Restaurant/
-│   │   ├── TrackOrder/
-│   │   ├── Verify/
-│   │   └── SellerPages/        # Seller dashboard pages (NEW)
-│   │       ├── SellerDashboard/
-│   │       ├── ManageMenu/
-│   │       ├── SellerOrders/
-│   │       ├── SellerRevenue/
-│   │       ├── SellerProfile/
-│   │       ├── SellerPromotions/
-│   │       └── SellerSettings/
-│   │
-│   ├── App.jsx                  # Main app with routing
-│   ├── main.jsx                 # Entry point
-│   └── index.css                # Global styles
-│
-├── index.html
-├── package.json
-├── vite.config.js
-└── README.md
-```
-
----
-
-## 🔗 API Integration
-
-### Current Status
-
-- ✅ **Frontend**: 100% Complete with mock data
-- ⏳ **Backend**: Ready for integration
-- ⏳ **API Endpoints**: Need to be created
-
-### Required Backend Endpoints
-
-#### Buyer APIs
-```
-POST   /api/auth/register        - User registration
-POST   /api/auth/login           - User login
-GET    /api/food                 - Get food items
-GET    /api/restaurants          - Get restaurants
-POST   /api/orders               - Place order
-GET    /api/orders/user/:id      - Get user orders
-PATCH  /api/orders/:id/status    - Update order status
-POST   /api/cart                 - Cart operations
-```
-
-#### Seller APIs
-```
-GET    /api/seller/dashboard     - Dashboard statistics
-GET    /api/seller/menu          - Get menu items
-POST   /api/seller/menu          - Add menu item
-PUT    /api/seller/menu/:id      - Update menu item
-DELETE /api/seller/menu/:id      - Delete menu item
-GET    /api/seller/orders        - Get seller orders
-PATCH  /api/seller/orders/:id    - Update order status
-GET    /api/seller/revenue       - Revenue analytics
-GET    /api/seller/profile       - Get seller profile
-PUT    /api/seller/profile       - Update profile
-GET    /api/seller/promotions    - Get promotions
-POST   /api/seller/promotions    - Create promotion
-PUT    /api/seller/promotions/:id    - Update promotion
-DELETE /api/seller/promotions/:id    - Delete promotion
-PUT    /api/seller/settings      - Update settings
-```
-
-### Integration Example
-
-```javascript
-// Before (Mock data)
-const menuItems = [
-  { id: 1, name: "Pizza", price: 99000 }
-]
-
-// After (Real API)
-const fetchMenuItems = async () => {
-  try {
-    const response = await axios.get(`${url}/api/seller/menu`, {
-      headers: { token: localStorage.getItem('token') }
-    })
-    setMenuItems(response.data.items)
-  } catch (error) {
-    toast.error("Failed to fetch menu items")
+const scrollToMenu = () => {
+  const menuSection = document.getElementById('explore-menu');
+  if (menuSection) {
+    menuSection.scrollIntoView({ behavior: 'smooth' });
   }
-}
+};
 ```
 
 ---
 
-## 🎨 Design Specifications
+## 2. ✅ Tìm Kiếm & Ẩn Banner
 
-### Color Scheme
+**File thay đổi:** 
+- `src/components/Navbar/Navbar.jsx`
+- `src/pages/Home/Home.jsx`
 
-```css
-/* Primary Colors */
---primary-orange: #fa8d1a;     /* Main brand color */
---light-bg: #f5f5f5;           /* Page background */
---white: #ffffff;              /* Cards, buttons */
---dark-text: #333333;          /* Main text */
---muted-text: #999999;         /* Secondary text */
+**Mô tả:**
+- Khi search, banner màu cam sẽ tự động ẩn đi, chỉ hiển thị kết quả tìm kiếm
+- Hỗ trợ 2 cách search:
+  - **Nhấn Enter** khi đang gõ trong ô tìm kiếm
+  - **Click vào icon kính lúp** (search icon)
+- Tự động cuộn đến phần hiển thị món ăn sau khi search
 
-/* Status Colors */
---success: #d4edda;            /* Success badges */
---warning: #fff3cd;            /* Warning badges */
---danger: #f8d7da;             /* Error badges */
-```
-
-### Responsive Breakpoints
-
-```css
-/* Desktop */
-@media (min-width: 1024px) {
-  .seller-navbar { width: 230px; }
-}
-
-/* Tablet */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .seller-navbar { width: 230px; }
-}
-
-/* Mobile */
-@media (max-width: 767px) {
-  .seller-navbar { width: 200px; }
-}
-```
+**Các thay đổi:**
+1. **Navbar:** Thêm `onKeyDown` và cập nhật `onClick` handler
+2. **Home:** Điều kiện hiển thị banner: `{!searchTerm && <Header/>}`
 
 ---
 
-## 📊 Implementation Statistics
+## 3. ✅ Lưu Profile Trên Frontend (localStorage)
 
-### Files Created
+**File thay đổi:** `src/pages/Profile/Profile.jsx`
 
-| Category | Count | Lines of Code |
-|----------|-------|---------------|
-| **Components** | 2 | ~300 |
-| **Layouts** | 1 | ~50 |
-| **Pages** | 7 | ~450 |
-| **CSS Files** | 9 | ~1,300 |
-| **Total** | **19** | **~2,100+** |
+**Mô tả:**
+- Profile của người dùng được lưu trữ trong **localStorage** của trình duyệt
+- Mỗi người dùng chỉ thấy thông tin của chính mình
+- Dữ liệu không mất khi refresh trang
+- Khi logout, profile tự động bị xóa
 
-### Implementation Breakdown
+**Luồng hoạt động:**
+1. **Load Profile:** Ưu tiên load từ localStorage → Fallback sang backend nếu có
+2. **Save Profile:** Lưu vào localStorage ngay lập tức → Đồng bộ lên backend (nếu có)
+3. **Logout:** Xóa toàn bộ profile khỏi localStorage
 
-```
-✅ Frontend UI:              100% Complete
-✅ Routing Logic:            100% Complete
-✅ Authentication:           100% Complete
-✅ Styling:                  100% Complete
-✅ Responsive Design:        100% Complete
-✅ Documentation:            100% Complete
-⏳ Backend APIs:            Ready for Integration
-⏳ API Integration:         Ready for Implementation
-```
+**Key localStorage:** `userProfile`
 
 ---
 
-## 🧪 Testing
+## 4. ✅ Hiển Thị Số Lượng Sản Phẩm Chính Xác
 
-### Manual Testing Checklist
+**File thay đổi:** `src/components/ExploreMenu/ExploreMenu.jsx`
 
-#### Buyer Mode
-```
-□ Homepage loads correctly
-□ Can browse restaurants
-□ Can add items to cart
-□ Cart updates properly
-□ Can place orders
-□ Order tracking works
-□ Profile updates save
-□ Logout works
-```
+**Mô tả:**
+- Mỗi category hiển thị số lượng món ăn thực tế
+- Nếu số lượng > 99, hiển thị "99+"
+- Sử dụng hàm `getCountByCategory()` để đếm động
 
-#### Seller Mode
+**Ví dụ:**
 ```
-□ Registration with "Sell Food" role
-□ Sidebar appears after login
-□ Dashboard shows stats
-□ Can navigate all 7 pages
-□ Menu table displays items
-□ Orders table displays orders
-□ Revenue page shows data
-□ Profile shows store info
-□ Promotions display correctly
-□ Settings toggles work
-□ Logout returns to buyer mode
-□ Session persists on refresh
+Chicken (19)
+Appetizers (52)
+BBQ (9)
+Beverages (99+)
 ```
 
----
-
-## 🚀 Deployment
-
-### Build for Production
-
-```bash
-# Create production build
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
-### Deploy to Vercel
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
-
-### Deploy to Netlify
-
-```bash
-# Build the project
-npm run build
-
-# Deploy dist folder to Netlify
-# Or connect GitHub repo to Netlify
-```
-
----
-
-## 📝 Key Concepts
-
-### Role-Based Routing
-
-The application uses a role-based system to determine which interface to show:
-
+**Logic:**
 ```javascript
-// StoreContext manages role state
-const [role, setRole] = useState(
-  localStorage.getItem('role') || 'buyer'
-)
-
-// App.jsx uses role to conditionally render
-{role === 'seller' ? <SellerLayout /> : <BuyerLayout />}
+const getCountByCategory = (categoryName) => {
+  if (categoryName === "All") {
+    return food_list.length;
+  }
+  const count = food_list.filter(item => item.category === categoryName).length;
+  return count > 99 ? "99+" : count;
+};
 ```
 
-### Session Persistence
+---
 
-User sessions persist across page refreshes:
+## 5. ✅ Gọi Điện Cho Seller
 
+**File thay đổi:** `src/pages/TrackOrder/TrackOrder.jsx`
+
+**Mô tả:**
+- Nút **"📞 Gọi nhà hàng"** khi được nhấn sẽ tự động mở ứng dụng Phone/SMS
+- Sử dụng protocol `tel:` để khởi chạy cuộc gọi
+- Không tốn chi phí từ app, chỉ cung cấp số điện thoại
+
+**Luồng hoạt động:**
+1. Order object chứa `sellerPhone`
+2. Khi click nút gọi → `window.location.href = tel:${phoneNumber}`
+3. Hệ điều hành tự động mở app Phone
+
+**Code:**
 ```javascript
-// On login
-localStorage.setItem('token', response.data.token)
-localStorage.setItem('role', response.data.role)
-
-// On page load
-const token = localStorage.getItem('token')
-const role = localStorage.getItem('role')
-
-// On logout
-localStorage.removeItem('token')
-localStorage.removeItem('role')
-```
-
-### State Management Flow
-
-```
-StoreContext
-  ├── token (authentication)
-  ├── role (buyer/seller)
-  ├── cartItems (shopping cart)
-  ├── food_list (available items)
-  └── methods (add, remove, logout)
-       ↓
-Components subscribe to context
-       ↓
-UI updates reactively
+const handleCallSeller = (phoneNumber) => {
+  if (!phoneNumber) {
+    alert('Không tìm thấy số điện thoại nhà hàng');
+    return;
+  }
+  window.location.href = `tel:${phoneNumber}`;
+};
 ```
 
 ---
 
-## 🤝 Contributing
+## 6. ✅ Tính Năng Chat Giữa Buyer và Seller
 
-Contributions are welcome! Please follow these guidelines:
+**File thay đổi:** 
+- `src/pages/TrackOrder/TrackOrder.jsx`
+- `src/pages/TrackOrder/TrackOrder.css`
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+**Mô tả:**
+- Tạo cổng chat trực tiếp giữa người mua và người bán
+- Tin nhắn được lưu trong localStorage theo từng order
+- Hỗ trợ gửi tin nhắn bằng Enter hoặc nút "Gửi"
+- Giả lập phản hồi từ seller sau 2 giây
 
----
+**Tính năng:**
+- ✅ Chat box có thể mở/đóng
+- ✅ Tin nhắn người mua (màu đỏ, bên phải)
+- ✅ Tin nhắn người bán (màu xám, bên trái)
+- ✅ Hiển thị thời gian gửi
+- ✅ Lưu trữ lịch sử chat theo orderId
+- ✅ Auto-scroll khi có tin nhắn mới
 
-## 📝 TODO & Future Enhancements
+**Key localStorage:** `chat_{orderId}`
 
-### Backend Integration
-- [ ] Create all required API endpoints
-- [ ] Connect frontend to backend APIs
-- [ ] Implement file upload for images
-- [ ] Add error handling and loading states
-
-### UI/UX Improvements
-- [ ] Add animations and transitions
-- [ ] Implement skeleton loaders
-- [ ] Add dark mode support
-- [ ] Enhance mobile responsiveness
-
-### Features
-- [ ] Real-time notifications
-- [ ] Chat support
-- [ ] Payment gateway integration
-- [ ] Multi-language support
-- [ ] Advanced analytics dashboard
-- [ ] Bulk operations for menu items
-- [ ] Export reports (PDF, Excel)
-
-### Testing
-- [ ] Unit tests with Jest
-- [ ] Integration tests
-- [ ] E2E tests with Cypress
-- [ ] Performance optimization
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-## 👨‍💻 Author
-
-**Nguyen Ngoc**
-- GitHub: [@izjoe](https://github.com/izjoe)
-- Repository: [Eatify_FE](https://github.com/izjoe/Eatify_FE)
-
----
-
-## 🙏 Acknowledgments
-
-- React Team for the amazing framework
-- Vite Team for the blazing-fast build tool
-- All contributors and supporters
-
----
-
-## 📈 Project Status
-
+**UI:**
 ```
-Project Status: ✅ Production Ready
-Frontend: ✅ 100% Complete
-Backend: ⏳ Ready for Integration
-Documentation: ✅ Complete
-Quality: ⭐⭐⭐⭐⭐
+┌─────────────────────────────────┐
+│ Chat với Cơm Tấm Sài Gòn    [✕] │ ← Header
+├─────────────────────────────────┤
+│                   [Tin nhắn 1]  │ ← Buyer
+│ [Tin nhắn 2]                    │ ← Seller
+│                   [Tin nhắn 3]  │ ← Buyer
+├─────────────────────────────────┤
+│ [Input box...............] Gửi  │ ← Input
+└─────────────────────────────────┘
+```
+
+**Chat Message Structure:**
+```javascript
+{
+  sender: 'buyer' | 'seller',
+  message: string,
+  time: string (HH:MM format)
+}
 ```
 
 ---
 
-**Made with ❤️ by the Eatify Team**
+## 📦 Tổng Kết Các File Đã Thay Đổi
 
-**Last Updated**: December 2025
-
-**Version**: 1.0.0
+| File | Thay đổi |
+|------|----------|
+| `Header.jsx` | Thêm onClick handler cho nút View Menu |
+| `Navbar.jsx` | Xử lý search (Enter & Click), xóa profile khi logout |
+| `Home.jsx` | Điều kiện ẩn/hiện banner dựa trên searchTerm |
+| `Profile.jsx` | Lưu/load profile từ localStorage |
+| `ExploreMenu.jsx` | Hiển thị số lượng món ăn chính xác |
+| `TrackOrder.jsx` | Thêm chức năng gọi điện & chat |
+| `TrackOrder.css` | CSS cho chat box |
 
 ---
 
-**Happy Coding! 🚀**
+## 🧪 Cách Test
+
+### Test 1: View Menu Button
+```
+1. Mở trang chủ
+2. Click nút "View Menu" ở banner
+3. Trang tự động cuộn xuống phần menu
+```
+
+### Test 2: Search
+```
+1. Nhập từ khóa vào ô search (ví dụ: "chicken")
+2. Nhấn Enter HOẶC click icon kính lúp
+3. Banner biến mất, chỉ hiện kết quả search
+4. Xóa từ khóa → Banner hiện lại
+```
+
+### Test 3: Profile
+```
+1. Login → vào Profile
+2. Nhập thông tin (name, email, phone, etc.)
+3. Click Save
+4. Refresh trang → Thông tin vẫn còn
+5. Logout → Profile bị xóa
+6. Login lại → Profile trống
+```
+
+### Test 4: Số lượng món ăn
+```
+1. Vào trang Home
+2. Xem phần "Explore our menu"
+3. Mỗi category hiển thị số món (ví dụ: Chicken (19))
+```
+
+### Test 5: Gọi điện
+```
+1. Vào Track Orders
+2. Chọn order đang active
+3. Click "📞 Gọi nhà hàng"
+4. App Phone tự động mở với số seller
+```
+
+### Test 6: Chat
+```
+1. Vào Track Orders
+2. Click "💬 Chat"
+3. Chat box mở ra
+4. Nhập tin nhắn, nhấn Enter hoặc nút Gửi
+5. Sau 2 giây, seller tự động reply
+6. Refresh trang → Chat vẫn còn
+7. Logout → Chat bị xóa
+```
+
+---
+
+## 🔐 LocalStorage Keys
+
+| Key | Mô tả | Format |
+|-----|-------|--------|
+| `userProfile` | Thông tin profile người dùng | JSON object |
+| `chat_{orderId}` | Lịch sử chat theo order | JSON array |
+| `token` | JWT token | String |
+| `role` | buyer/seller | String |
+
+---
+
+## 🚀 Next Steps
+
+### Đề xuất tính năng tiếp theo:
+1. **Real-time chat** sử dụng WebSocket/Socket.io
+2. **Push notifications** cho tin nhắn mới
+3. **File upload** trong chat (hình ảnh)
+4. **Video call** giữa buyer và seller
+5. **Chat history** trên backend
+6. **Typing indicator** (đang gõ...)
+7. **Read receipts** (đã xem)
+
+---
+
+## 📝 Notes
+
+- Tất cả localStorage keys có thể được config trong một file constants
+- Chat hiện tại là demo version, production cần backend WebSocket
+- Số điện thoại seller cần được thêm vào order model
+- Profile validation có thể được cải thiện thêm
+
+---
+
+**Status:** ✅ All features implemented and tested
+
+**Last Updated:** December 4, 2025
+
+**Version:** 1.1.0

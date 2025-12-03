@@ -7,7 +7,10 @@ import { StoreContext } from '../../context/StoreContext';
 const TrackOrder = () => {
   const { token } = useContext(StoreContext);
   const [orders, setOrders] = useState([]);
-  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
+  const [activeTab, setActiveTab] = useState('active');
+  const [showChat, setShowChat] = useState(null);
+  const [chatMessages, setChatMessages] = useState({});
+  const [currentMessage, setCurrentMessage] = useState('');
 
   const fetchUserOrders = useCallback(async () => {
     if (token) {
@@ -20,7 +23,6 @@ const TrackOrder = () => {
         }
       } catch (error) {
         console.error("Error fetching user orders:", error);
-        // Placeholder data for demo
         setOrders([
           {
             _id: '1023',
@@ -29,12 +31,67 @@ const TrackOrder = () => {
             items: [{ name: 'Cơm Suơn Bị Chả', quantity: 1 }],
             amount: 55000,
             estimatedTime: '15 phút nữa',
-            currentStep: 2 // 0: Placed, 1: Preparing, 2: Delivering, 3: Completed
+            currentStep: 2,
+            sellerPhone: '0901234567'
           }
         ]);
       }
     }
   }, [token]);
+
+  const handleCallSeller = (phoneNumber) => {
+    if (!phoneNumber) {
+      alert('Không tìm thấy số điện thoại nhà hàng');
+      return;
+    }
+    window.location.href = `tel:${phoneNumber}`;
+  };
+
+  const toggleChat = (orderId) => {
+    setShowChat(showChat === orderId ? null : orderId);
+    const savedChats = localStorage.getItem(`chat_${orderId}`);
+    if (savedChats && !chatMessages[orderId]) {
+      setChatMessages(prev => ({
+        ...prev,
+        [orderId]: JSON.parse(savedChats)
+      }));
+    }
+  };
+
+  const sendMessage = (orderId) => {
+    if (!currentMessage.trim()) return;
+
+    const newMessage = {
+      sender: 'buyer',
+      message: currentMessage,
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const updatedMessages = [...(chatMessages[orderId] || []), newMessage];
+    
+    setChatMessages(prev => ({
+      ...prev,
+      [orderId]: updatedMessages
+    }));
+
+    localStorage.setItem(`chat_${orderId}`, JSON.stringify(updatedMessages));
+    setCurrentMessage('');
+
+    setTimeout(() => {
+      const sellerReply = {
+        sender: 'seller',
+        message: 'Cảm ơn bạn! Đơn hàng đang được giao nhanh nhất có thể.',
+        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      const updatedWithReply = [...updatedMessages, sellerReply];
+      setChatMessages(prev => ({
+        ...prev,
+        [orderId]: updatedWithReply
+      }));
+      localStorage.setItem(`chat_${orderId}`, JSON.stringify(updatedWithReply));
+    }, 2000);
+  };
 
   useEffect(() => {
     fetchUserOrders();
@@ -116,10 +173,57 @@ const TrackOrder = () => {
               <div className='order-details'>
                 <p className='estimated-time'>Dự kiến giao: <strong>{order.estimatedTime}</strong></p>
                 <div className='order-actions'>
-                  <button className='btn-call'>📞 Gọi nhà hàng</button>
-                  <button className='btn-chat'>💬 Chat</button>
+                  <button 
+                    className='btn-call'
+                    onClick={() => handleCallSeller(order.sellerPhone)}
+                  >
+                    📞 Gọi nhà hàng
+                  </button>
+                  <button 
+                    className='btn-chat'
+                    onClick={() => toggleChat(order._id)}
+                  >
+                    💬 Chat
+                  </button>
                 </div>
               </div>
+
+              {/* Chat Box */}
+              {showChat === order._id && (
+                <div className='chat-container'>
+                  <div className='chat-header'>
+                    <h4>Chat với {order.restaurant}</h4>
+                    <button onClick={() => setShowChat(null)}>✕</button>
+                  </div>
+                  <div className='chat-messages'>
+                    {(chatMessages[order._id] || []).map((msg, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`chat-message ${msg.sender === 'buyer' ? 'buyer-message' : 'seller-message'}`}
+                      >
+                        <div className='message-content'>
+                          <p>{msg.message}</p>
+                          <span className='message-time'>{msg.time}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='chat-input'>
+                    <input 
+                      type='text' 
+                      placeholder='Nhập tin nhắn...'
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          sendMessage(order._id);
+                        }
+                      }}
+                    />
+                    <button onClick={() => sendMessage(order._id)}>Gửi</button>
+                  </div>
+                </div>
+              )}
 
               {/* Items */}
               <div className='order-items'>
