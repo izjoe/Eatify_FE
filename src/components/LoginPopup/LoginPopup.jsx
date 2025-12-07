@@ -17,6 +17,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
   const [data, setData] = useState({
     name: "",
+    displayName: "", // Tên hiển thị cho seller
     email: "",
     password: "",
   });
@@ -68,7 +69,14 @@ const LoginPopup = ({ setShowLogin }) => {
       newUrl += "/api/user/register";
     }
 
-    const payload = currentState === "Sign Up" ? { ...data, role: roleSelection } : data;
+    const payload = currentState === "Sign Up" 
+      ? { 
+          ...data, 
+          role: roleSelection,
+          // Include displayName only for seller
+          ...(roleSelection === "seller" && data.displayName ? { displayName: data.displayName } : {})
+        } 
+      : { email: data.email, password: data.password };
     console.log("Sending payload to:", newUrl, payload);
 
     try {
@@ -86,7 +94,7 @@ const LoginPopup = ({ setShowLogin }) => {
             
             // Switch to login form
             setCurrentState("Login");
-            setData({ name: "", email: "", password: "" });
+            setData({ name: "", displayName: "", email: "", password: "" });
             setIsLoading(false);
             return;
           }
@@ -97,9 +105,9 @@ const LoginPopup = ({ setShowLogin }) => {
         // ================================
         if (currentState === "Login") {
           if (response.status === 200 || response.data.success === true) {
-            const { token, role, userID, name } = response.data;
+            const { token, role, userID, name, displayName, profileCompleted, onboardingShown } = response.data;
             
-            console.log("Login response:", { token: token?.substring(0, 20), role, userID, name });
+            console.log("Login response:", { token: token?.substring(0, 20), role, userID, name, displayName });
             
             // Validate token
             if (!token) {
@@ -116,13 +124,16 @@ const LoginPopup = ({ setShowLogin }) => {
               console.warn("Invalid role from server:", role, "- defaulting to buyer");
             }
             
-            console.log("Saving to localStorage:", { userRole, userID, name });
+            console.log("Saving to localStorage:", { userRole, userID, name, displayName });
             
             // Save to localStorage FIRST (synchronous)
             localStorage.setItem("token", token);
             localStorage.setItem("role", userRole);
             if (userID) localStorage.setItem("userID", userID);
             if (name) localStorage.setItem("userName", name);
+            if (displayName) localStorage.setItem("displayName", displayName);
+            localStorage.setItem("profileCompleted", profileCompleted ? "true" : "false");
+            localStorage.setItem("onboardingShown", onboardingShown ? "true" : "false");
             
             // Update React context
             setToken(token);
@@ -178,6 +189,19 @@ const LoginPopup = ({ setShowLogin }) => {
           {currentState === "Login" ? <></> : (
             <input name="name" onChange={onChangeHandler} value={data.name} type="text" placeholder="Your name" required />
           )}
+          
+          {/* Tên hiển thị cho seller khi đăng ký */}
+          {currentState === "Sign Up" && roleSelection === "seller" && (
+            <input 
+              name="displayName" 
+              onChange={onChangeHandler} 
+              value={data.displayName} 
+              type="text" 
+              placeholder="Store/Shop Name (displayed to customers)" 
+              required 
+            />
+          )}
+          
           <input name="email" onChange={onChangeHandler} value={data.email} type="email" placeholder="Your email" required />
           <input name="password" onChange={onChangeHandler} value={data.password} type="password" placeholder="Your password" required />
           
