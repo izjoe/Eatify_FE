@@ -28,7 +28,7 @@ const StoreContextProvider = (props) => {
       const response = await axios.post(
         url + "/api/cart/add",
         { itemId },
-        { headers: { token } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
         toast.success("Item Added to Cart");
@@ -44,7 +44,7 @@ const StoreContextProvider = (props) => {
       const response = await axios.post(
         url + "/api/cart/remove",
         { itemId },
-        { headers: { token } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
         toast.success("Item Removed from Cart");
@@ -97,7 +97,7 @@ const StoreContextProvider = (props) => {
         const response = await axios.post(
             url + "/api/cart/get",
             {},
-            { headers: { token } }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           setCartItems(response.data.cartData);
     } catch (error) {
@@ -118,12 +118,18 @@ const StoreContextProvider = (props) => {
     loadData();
   }, []);
 
+  // Hàm xóa toàn bộ giỏ hàng
+  const clearCart = () => {
+    setCartItems({});
+  };
+
   const contextValue = {
     food_list,
     cartItems,
     setCartItems,
     addToCart,
     removeFromCart,
+    clearCart,
     getTotalCartAmount,
     url,
     token,

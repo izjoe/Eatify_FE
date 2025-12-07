@@ -97,7 +97,7 @@ import tra_sua_tran_chau from './Trà_sữa_trân_châu.jpg'
 import cf_sua from './cf_sữa.jpg'
 import nuoc_cam from './nước_cam.jpg'
 import sinh_to_bo from './sinh_tố_bơ.jpg'
-import sinh_to_xoai from './sinh_tố_xoài.jpg'
+ import sinh_to_xoai from './sinh_tố_xoài.jpg'
 import bac_xiu from './bạc_xỉu.jpg'
 import matcha_latte from './matchalatte.jpg'
 import hong_tra_latte from './hồng_trà_latte.jpg'
@@ -142,6 +142,7 @@ import profile_icon from './profile_icon.png'
 import bag_icon from './bag_icon.png'
 import logout_icon from './logout_icon.png'
 import parcel_icon from './parcel_icon.png'
+import qr_code from './QR.png'
 
 export const assets = {
     logo,
@@ -158,6 +159,7 @@ export const assets = {
     // linkedin_icon,
     // facebook_icon,
     twitter_icon,
+    qr_code,
     cross_icon,
     selector_icon,
     profile_icon,
