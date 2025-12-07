@@ -41,7 +41,7 @@ const MyOrders = () => {
                   }
                 })}
               </p>
-              <p>{(order.amount * 2500).toLocaleString('vi-VN')}đ</p>
+              <p>{order.amount.toLocaleString('vi-VN')}đ</p>
               <p>items: {order.items.length}</p>
               <p>
                 <span>&#x25cf;</span>

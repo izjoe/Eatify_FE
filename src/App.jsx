@@ -11,6 +11,7 @@ import Verify from './pages/Verify/Verify'
 import MyOrders from './pages/MyOrders/MyOrders'
 import Profile from './pages/Profile/Profile'
 import Restaurants from './pages/Restaurant/Restaurant'
+import RestaurantDetail from './pages/RestaurantDetail/RestaurantDetail'
 import TrackOrder from './pages/TrackOrder/TrackOrder'
 import MyShop from './pages/MyShop'
 import Menu from './pages/Menu/Menu'
@@ -72,6 +73,7 @@ const App = () => {
           <Route path='/myorders' element={<MyOrders />} />
           <Route path='/profile' element={<Profile />} />
           <Route path='/restaurants' element={<Restaurants />} />
+          <Route path='/restaurant/:sellerId' element={<RestaurantDetail />} />
           <Route path='/track-orders' element={<TrackOrder />} />
           <Route path='/my-shop' element={<MyShop />} />
           <Route path='/food/:id' element={<FoodDetail />} />

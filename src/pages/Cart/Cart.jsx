@@ -73,9 +73,9 @@ const Cart = () => {
                 <div className="cart-items-title cart-items-item">
                   <img src={url+"/images/"+item.image} alt="" />
                   <p>{item.name}</p>
-                  <p>{(item.price * 2500).toLocaleString('vi-VN')}đ</p>
+                  <p>{item.price.toLocaleString('vi-VN')}đ</p>
                   <p>{cartItems[item._id]}</p>
-                  <p>{(item.price * cartItems[item._id] * 2500).toLocaleString('vi-VN')}đ</p>
+                  <p>{(item.price * cartItems[item._id]).toLocaleString('vi-VN')}đ</p>
                   <p onClick={() => removeFromCart(item._id)} className="cross">
                     x
                   </p>
@@ -92,7 +92,7 @@ const Cart = () => {
           <div>
             <div className="cart-total-details">
               <b>Total</b>
-              <b>{getTotalCartAmount() === 0 ? 0 : (getTotalCartAmount() * 2500).toLocaleString('vi-VN')}đ</b>
+              <b>{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount().toLocaleString('vi-VN')}đ</b>
             </div>
           </div>
           <button onClick={handleProceedToCheckout}>PROCEED TO CHECKOUT</button>

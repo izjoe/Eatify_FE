@@ -153,7 +153,7 @@ const PlaceOrder = () => {
             <div className="cart-total-details">
               <b>Total</b>
               <b>
-                {getTotalCartAmount() === 0 ? 0 : (getTotalCartAmount() * 2500).toLocaleString('vi-VN')}đ
+                {getTotalCartAmount() === 0 ? 0 : getTotalCartAmount().toLocaleString('vi-VN')}đ
               </b>
             </div>
           </div>

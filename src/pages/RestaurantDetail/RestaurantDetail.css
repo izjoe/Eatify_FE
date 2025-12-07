@@ -1,0 +1,217 @@
+.restaurant-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Loading and Error States */
+.restaurant-detail-loading,
+.restaurant-detail-error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.restaurant-detail-error h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.restaurant-detail-error button {
+  padding: 12px 24px;
+  background: tomato;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Restaurant Header */
+.restaurant-header {
+  margin-bottom: 30px;
+}
+
+.restaurant-header-image {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.restaurant-header-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.restaurant-header-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  padding: 40px 30px 30px;
+}
+
+.restaurant-header-info h1 {
+  color: white;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.restaurant-header-info .restaurant-address {
+  color: rgba(255,255,255,0.9);
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.restaurant-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.restaurant-tags .tag {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  backdrop-filter: blur(5px);
+}
+
+/* About Section */
+.restaurant-about {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.restaurant-about h2 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.restaurant-about p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Category Filter */
+.restaurant-categories {
+  margin-bottom: 30px;
+}
+
+.restaurant-categories h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.category-tabs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.category-tab {
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  transition: all 0.2s;
+}
+
+.category-tab:hover {
+  border-color: tomato;
+  color: tomato;
+}
+
+.category-tab.active {
+  background: tomato;
+  color: white;
+  border-color: tomato;
+}
+
+.category-count {
+  margin-left: 5px;
+  opacity: 0.8;
+}
+
+/* Food Grid */
+.restaurant-foods {
+  margin-top: 30px;
+}
+
+.foods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 25px;
+}
+
+.no-foods {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .restaurant-header-image {
+    height: 200px;
+  }
+  
+  .restaurant-header-info h1 {
+    font-size: 24px;
+  }
+  
+  .restaurant-categories h2 {
+    font-size: 20px;
+  }
+  
+  .category-tabs {
+    gap: 8px;
+  }
+  
+  .category-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .foods-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .restaurant-detail {
+    padding: 10px;
+  }
+  
+  .restaurant-header-image {
+    height: 180px;
+    border-radius: 12px;
+  }
+  
+  .restaurant-header-overlay {
+    padding: 30px 20px 20px;
+  }
+  
+  .restaurant-header-info h1 {
+    font-size: 20px;
+  }
+  
+  .foods-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}

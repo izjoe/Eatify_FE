@@ -81,7 +81,7 @@ const Profile = () => {
     
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("⚠️ Image size should be less than 5MB");
+      toast.error("Image size should be less than 5MB");
       return;
     }
     
@@ -101,13 +101,13 @@ const Profile = () => {
       if (response.data.success) {
         // Update form with uploaded image URL
         setForm((f) => ({ ...f, profileImage: response.data.fullUrl }));
-        toast.success("✅ Image uploaded successfully!");
+        toast.success("Image uploaded successfully!");
       } else {
         toast.error("Failed to upload image");
       }
     } catch (err) {
       console.error("Image upload error:", err);
-      toast.error("⚠️ Failed to upload image");
+      toast.error("Failed to upload image");
     } finally {
       setUploadingImage(false);
     }
@@ -126,79 +126,83 @@ const Profile = () => {
     
     // Check authentication
     if (!token) {
-        toast.error("⚠️ Please login to save profile");
+        toast.error("Please login to save profile");
         return;
     }
 
-    // Validate required fields
-    const requiredFields = {
-      name: 'Full name',
-      email: 'Email',
-      phone: 'Phone',
-      address: 'Address'
-    };
+    // Validate required fields (chỉ name là bắt buộc)
+    if (!form.name || form.name.trim() === '') {
+      toast.error("Full name is required");
+      return;
+    }
 
-    const missingFields = [];
-    Object.entries(requiredFields).forEach(([field, label]) => {
-      if (!form[field] || form[field].trim() === '') {
-        missingFields.push(label);
+    // Validate and normalize phone format (Vietnamese phone) - nếu có nhập
+    let normalizedPhone = '';
+    if (form.phone && form.phone.trim() !== '') {
+      const phoneRegex = /^(\+84|0)\d{9}$/;
+      if (!phoneRegex.test(form.phone.trim())) {
+        toast.error("Phone must be in 0XXXXXXXXX format (e.g., 0886038804)");
+        return;
       }
-    });
-
-    if (missingFields.length > 0) {
-      toast.error(`⚠️ Please fill in: ${missingFields.join(', ')}`);
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      toast.error("⚠️ Please enter a valid email address");
-      return;
-    }
-
-    // Validate phone format (Vietnamese phone)
-    const phoneRegex = /^(\+84|0)[0-9]{9,10}$/;
-    if (!phoneRegex.test(form.phone)) {
-      toast.error("⚠️ Please enter a valid phone number (+84 or 0 + 9-10 digits)");
-      return;
+      // Normalize phone to 0-format (convert +84xxxxxxxxx to 0xxxxxxxxx)
+      normalizedPhone = form.phone.trim();
+      if (normalizedPhone.startsWith('+84')) {
+        normalizedPhone = '0' + normalizedPhone.substring(3);
+      }
     }
 
     setLoading(true);
     try {
       // Extract filename from profileImage URL if it exists
       let profileImageFilename = "";
-      if (form.profileImage) {
+      if (form.profileImage && form.profileImage.trim() !== '') {
         const urlParts = form.profileImage.split('/');
         profileImageFilename = urlParts[urlParts.length - 1];
       }
 
-      // Prepare data for backend (map to backend field names)
+      // Convert date from YYYY-MM-DD to DD-MM-YYYY format for backend
+      let formattedDob = "";
+      if (form.dob && form.dob.trim() !== '') {
+        const [year, month, day] = form.dob.split('-');
+        formattedDob = `${day}-${month}-${year}`;
+      }
+
+      // Prepare data for backend - chỉ gửi trường name là bắt buộc
       const updateData = {
-        name: form.name,
-        email: form.email,
-        dob: form.dob,
-        address: form.address,
-        gender: form.gender,
-        phoneNumber: form.phone,
-        profileImage: profileImageFilename
+        name: form.name.trim()
       };
+
+      // Thêm các trường optional nếu có giá trị
+      if (formattedDob) updateData.dob = formattedDob;
+      if (form.address && form.address.trim()) updateData.address = form.address.trim();
+      if (form.gender) updateData.gender = form.gender;
+      if (normalizedPhone) updateData.phoneNumber = normalizedPhone;
+      if (profileImageFilename) updateData.profileImage = profileImageFilename;
+
+      console.log("📤 Sending update data:", updateData);
 
       const response = await axios.put(`${url}/api/user/profile`, updateData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      console.log("✅ Server response:", response.data);
+
       if (response.data.success) {
         toast.success("✅ Profile updated successfully!");
         setIsEditing(false);
-        // Reload profile to get updated data
-        loadProfile();
+        // Reload profile to get updated data from server
+        await loadProfile();
       } else {
         toast.error(response.data.message || "Failed to update profile");
       }
     } catch (err) {
-      console.error("Save profile error:", err);
-      toast.error("⚠️ Failed to save profile");
+      console.error("❌ Save profile error:", err);
+      console.error("📋 Error details:", err.response?.data);
+      
+      const errorMsg = err.response?.data?.message 
+        || err.response?.data?.errors?.join(', ')
+        || "Failed to save profile";
+      toast.error(`⚠️ ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -220,6 +224,68 @@ const Profile = () => {
     );
   }
 
+  // ✅ VIEW MODE - Hiển thị sau khi save thành công (isEditing = false)
+  if (!isEditing) {
+    // Format date for display (from YYYY-MM-DD to DD/MM/YYYY)
+    const formatDateDisplay = (dateStr) => {
+      if (!dateStr) return "Not set";
+      const [year, month, day] = dateStr.split('-');
+      return `${day}/${month}/${year}`;
+    };
+
+    return (
+      <div className="profile-page">
+        <div className="profile-view-card">
+          {/* Avatar and Name Section */}
+          <div className="profile-view-header">
+            <div className="profile-view-avatar">
+              {form.profileImage ? (
+                <img src={form.profileImage} alt="profile" />
+              ) : (
+                <div className="avatar-placeholder-view">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="60" height="60">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+              )}
+            </div>
+            <h2 className="profile-view-name">{form.name || "User Name"}</h2>
+            <p className="profile-view-email">{form.email}</p>
+          </div>
+
+          {/* Profile Info Section */}
+          <div className="profile-view-info">
+            <div className="profile-info-row">
+              <span className="info-label">Date of Birth:</span>
+              <span className="info-value">{formatDateDisplay(form.dob)}</span>
+            </div>
+            <div className="profile-info-row">
+              <span className="info-label">Phone:</span>
+              <span className="info-value">{form.phone || "Not set"}</span>
+            </div>
+            <div className="profile-info-row">
+              <span className="info-label">Gender:</span>
+              <span className="info-value">{form.gender || "Not set"}</span>
+            </div>
+            <div className="profile-info-row">
+              <span className="info-label">Address:</span>
+              <span className="info-value">{form.address || "Not set"}</span>
+            </div>
+          </div>
+
+          {/* Edit Button */}
+          <button 
+            className="btn-edit-profile-again" 
+            onClick={() => setIsEditing(true)}
+          >
+            Edit Profile Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ EDIT MODE - Form để chỉnh sửa
   return (
     <div className="profile-page">
       <h2>Profile</h2>
@@ -233,28 +299,26 @@ const Profile = () => {
               <div className="avatar-placeholder">No Image</div>
             )}
           </div>
-          {isEditing && (
-            <div className="image-upload-section">
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={onImage} 
-                id="profile-image-input"
-                style={{ display: 'none' }}
-                disabled={uploadingImage}
-              />
-              <label 
-                htmlFor="profile-image-input" 
-                className="upload-label"
-                style={{ opacity: uploadingImage ? 0.6 : 1, cursor: uploadingImage ? 'not-allowed' : 'pointer' }}
-              >
-                {uploadingImage ? "⏳ Uploading..." : "📷 Choose Image"}
-              </label>
-              <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", textAlign: "center" }}>
-                {uploadingImage ? "Please wait..." : form.profileImage ? "Image uploaded ✓" : "No image selected"}
-              </p>
-            </div>
-          )}
+          <div className="image-upload-section">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={onImage} 
+              id="profile-image-input"
+              style={{ display: 'none' }}
+              disabled={uploadingImage}
+            />
+            <label 
+              htmlFor="profile-image-input" 
+              className="upload-label"
+              style={{ opacity: uploadingImage ? 0.6 : 1, cursor: uploadingImage ? 'not-allowed' : 'pointer' }}
+            >
+              {uploadingImage ? "⏳ Uploading..." : "📷 Choose Image"}
+            </label>
+            <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", textAlign: "center" }}>
+              {uploadingImage ? "Please wait..." : form.profileImage ? "Image uploaded ✓" : "No image selected"}
+            </p>
+          </div>
         </div>
         <div className="profile-right">
           <label>
@@ -264,7 +328,6 @@ const Profile = () => {
               value={form.name} 
               onChange={onChange} 
               placeholder="Enter your name"
-              disabled={!isEditing}
             />
           </label>
           <label>
@@ -274,7 +337,9 @@ const Profile = () => {
               value={form.email} 
               onChange={onChange} 
               placeholder="Enter your email"
-              disabled={!isEditing}
+              readOnly
+              disabled
+              style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
             />
           </label>
           <label>
@@ -284,7 +349,6 @@ const Profile = () => {
               type="date" 
               value={form.dob} 
               onChange={onChange}
-              disabled={!isEditing}
             />
           </label>
           <label>
@@ -293,8 +357,7 @@ const Profile = () => {
               name="phone" 
               value={form.phone} 
               onChange={onChange} 
-              placeholder="Enter phone number"
-              disabled={!isEditing}
+              placeholder="0886038804"
             />
           </label>
           <label>
@@ -303,12 +366,11 @@ const Profile = () => {
               name="gender" 
               value={form.gender} 
               onChange={onChange}
-              disabled={!isEditing}
             >
               <option value="">Select</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </label>
           <label>
@@ -318,25 +380,18 @@ const Profile = () => {
               value={form.address} 
               onChange={onChange} 
               placeholder="Enter your address"
-              disabled={!isEditing}
             />
           </label>
 
           <div className="profile-actions">
-            {!isEditing ? (
-              <button type="button" className="btn-edit" onClick={handleEditToggle}>
-                ✏️ Edit Profile
+            <div className="edit-actions">
+              <button type="submit" className="btn-save" disabled={loading || uploadingImage}>
+                {loading ? "Saving..." : "Save Edit"}
               </button>
-            ) : (
-              <div className="edit-actions">
-                <button type="submit" className="btn-save" disabled={loading || uploadingImage}>
-                  {loading ? "⏳ Saving..." : "💾 Save Edit"}
-                </button>
-                <button type="button" className="btn-cancel" onClick={handleEditToggle} disabled={loading}>
-                  ❌ Cancel
-                </button>
-              </div>
-            )}
+              <button type="button" className="btn-cancel" onClick={handleEditToggle} disabled={loading}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </form>

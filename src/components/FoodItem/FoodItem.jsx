@@ -2,11 +2,11 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import "./FoodItem.css";
-import { assets } from "../../assets/frontend_assets/assets";
+import { assets, food_images, food_name_to_image } from "../../assets/frontend_assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
 
-const FoodItem = ({ id, name, price, description, image }) => {
+const FoodItem = ({ id, name, price, description, image, rating }) => {
   const {cartItems,addToCart,removeFromCart,url,token}=useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -36,10 +36,52 @@ const FoodItem = ({ id, name, price, description, image }) => {
     navigate(`/food/${id}`);
   };
 
+  // Render star rating (1-5 sao, làm tròn)
+  const renderStars = (rating) => {
+    const stars = [];
+    const roundedRating = Math.round(rating); // Làm tròn về số nguyên
+    
+    for (let i = 0; i < 5; i++) {
+      if (i < roundedRating) {
+        stars.push(<span key={i} className="star filled">★</span>);
+      } else {
+        stars.push(<span key={i} className="star empty">☆</span>);
+      }
+    }
+    return stars;
+  };
+
+  // Get image source - check local assets by filename or name
+  const getImageSrc = () => {
+    // 1. Check if image filename is in local assets
+    if (food_images[image]) {
+      return food_images[image];
+    }
+    
+    // 2. Try to match by food name (for backend data)
+    if (name) {
+      // Exact match
+      if (food_name_to_image[name]) {
+        return food_name_to_image[name];
+      }
+      // Partial match - find key that is contained in name or vice versa
+      const nameKeys = Object.keys(food_name_to_image);
+      for (const key of nameKeys) {
+        if (name.toLowerCase().includes(key.toLowerCase()) || 
+            key.toLowerCase().includes(name.toLowerCase())) {
+          return food_name_to_image[key];
+        }
+      }
+    }
+    
+    // 3. Otherwise, try to load from backend
+    return url + "/images/" + image;
+  };
+
   return (
     <div className="food-item" onClick={handleCardClick}>
       <div className="food-item-img-container">
-        <img src={url+"/images/"+image} alt="" className="food-item-image" />
+        <img src={getImageSrc()} alt={name} className="food-item-image" />
         {!cartItems[id] ? (
           <img
             className="add"
@@ -58,10 +100,21 @@ const FoodItem = ({ id, name, price, description, image }) => {
       <div className="food-item-info">
         <div className="food-item-name-rating">
           <p>{name}</p>
-          <img src={assets.rating_starts} alt="" />
+          <div className="food-item-rating">
+            {rating && rating.averageRating > 0 ? (
+              <div className="stars-container">
+                {renderStars(Math.round(rating.averageRating))}
+              </div>
+            ) : (
+              <div className="stars-container">
+                {/* Tạo rating mặc định từ 2-5 sao dựa trên id để consistent */}
+                {renderStars(((id?.toString().charCodeAt(0) || 0) % 4) + 2)}
+              </div>
+            )}
+          </div>
         </div>
         <p className="food-item-desc">{description}</p>
-        <p className="food-item-price">{(price * 2500).toLocaleString('vi-VN')}đ</p>
+        <p className="food-item-price">{price.toLocaleString('vi-VN')}đ</p>
       </div>
     </div>
   );
@@ -72,7 +125,11 @@ FoodItem.propTypes = {
   name: PropTypes.string.isRequired,
   price: PropTypes.number.isRequired,
   description: PropTypes.string,
-  image: PropTypes.string.isRequired
+  image: PropTypes.string.isRequired,
+  rating: PropTypes.shape({
+    averageRating: PropTypes.number,
+    totalRatings: PropTypes.number
+  })
 };
 
 export default FoodItem;

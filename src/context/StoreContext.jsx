@@ -71,7 +71,19 @@ const StoreContextProvider = (props) => {
     try {
         const response = await axios.get(url + "/api/food/list");
         if (response.data.success) {
-          setFoodList(response.data.data);
+          // Map field names from backend to frontend expected names
+          const mappedData = response.data.data.map(food => ({
+            ...food,
+            _id: food.foodID,
+            name: food.foodName,
+            image: food.foodImage,
+            rating: {
+              averageRating: food.averageRating || 0,
+              totalRatings: food.totalRatings || 0
+            }
+            // Keep original fields too for compatibility
+          }));
+          setFoodList(mappedData);
         } else {
           toast.error("Error! Products are not fetching..");
         }

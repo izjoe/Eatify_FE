@@ -1,162 +1,192 @@
-import { useEffect, useState, useMemo, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import './Restaurant.css';
 import { useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
+import axios from 'axios';
+import { restaurant_images } from '../../assets/frontend_assets/assets';
+
+// Số quán mỗi trang
+const ITEMS_PER_PAGE = 6;
+
+// Hàm lấy ảnh cho restaurant
+const getRestaurantImage = (restaurant, url) => {
+  // Thử tìm theo tên quán
+  if (restaurant.storeName && restaurant_images[restaurant.storeName]) {
+    return restaurant_images[restaurant.storeName];
+  }
+  // Fallback về backend URL nếu có
+  if (restaurant.storeImage) {
+    return `${url}/images/${restaurant.storeImage}`;
+  }
+  return null;
+};
 
 const Restaurant = () => {
-  const { food_list, url } = useContext(StoreContext);
+  const { url } = useContext(StoreContext);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [filteredFoods, setFilteredFoods] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
-  // Dynamic categories from food_list
-  const categories = useMemo(() => {
-    if (!food_list || food_list.length === 0) return [];
-    
-    const categoryMap = {};
-    food_list.forEach(item => {
-      const cat = item.category || 'Uncategorized';
-      categoryMap[cat] = (categoryMap[cat] || 0) + 1;
-    });
-    
-    return Object.entries(categoryMap).map(([name, count]) => ({
-      name,
-      count
-    })).sort((a, b) => b.count - a.count);
-  }, [food_list]);
-
-  // Filter foods by category
+  // Fetch all restaurants/sellers from backend
   useEffect(() => {
-    if (!food_list) return;
+    const fetchRestaurants = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${url}/api/seller`);
+        if (response.data.success) {
+          setRestaurants(response.data.data);
+          setFilteredRestaurants(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching restaurants:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurants();
+  }, [url]);
+
+  // Filter restaurants by search term
+  useEffect(() => {
+    if (!restaurants) return;
     
-    let filtered = food_list;
+    let filtered = restaurants;
 
     // Filter by search term
     if (searchTerm.trim() !== '') {
-      filtered = filtered.filter(food =>
-        food.name.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(restaurant =>
+        restaurant.storeName.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by category
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(food =>
-        food.category === selectedCategory
-      );
-    }
+    setFilteredRestaurants(filtered);
+    setCurrentPage(1); // Reset về trang 1 khi search
+  }, [searchTerm, restaurants]);
 
-    setFilteredFoods(filtered);
-  }, [searchTerm, selectedCategory, food_list]);
+  const handleRestaurantClick = (sellerId) => {
+    navigate(`/restaurant/${sellerId}`);
+  };
 
-  const handleFoodClick = (foodId) => {
-    navigate(`/food/${foodId}`);
+  // Tính toán phân trang
+  const totalPages = Math.ceil(filteredRestaurants.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentRestaurants = filteredRestaurants.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className='restaurant-page'>
-      {/* Location Section */}
-      <div className='restaurant-location-section'>
-        <div className='location-dropdown'>
-          <span className='location-icon'></span>
-          <span>Location: [Location]</span>
-          <select 
-            value={selectedLocation} 
-            onChange={(e) => setSelectedLocation(e.target.value)}
-            className='location-select'
-          >
-            <option value=''>Track your location</option>
-            <option value='Thu Duc'>Thu Duc</option>
-            <option value='Di An'>Di An</option>
-            <option value='Binh Thanh'>Binh Thanh</option>
-          </select>
+      {/* Search Bar */}
+      <div className='restaurant-search-section'>
+        <div className='restaurant-search-bar'>
+          <input
+            type='text'
+            placeholder='Search for restaurants...'
+            className='restaurant-search-input'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <span className='search-icon'>🔍</span>
         </div>
       </div>
 
       <div className='restaurant-container'>
-        {/* Sidebar Filter */}
-        <div className='restaurant-sidebar'>
-          {/* Search By Food */}
-          <div className='sidebar-section'>
-            <h3>Search By Food</h3>
-            <div className='sidebar-divider'></div>
-            <input
-              type='text'
-              placeholder='Search categories...'
-              className='category-search'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        {/* Main Content - No Sidebar */}
+        <div className='restaurant-main-full'>
+          {loading ? (
+            <div className='loading-state'>
+              <p>Loading restaurants...</p>
+            </div>
+          ) : (
+            <>
+              <div className='restaurants-grid'>
+                {currentRestaurants.map((restaurant) => (
+                  <div
+                    key={restaurant._id}
+                    className='restaurant-card'
+                    onClick={() => handleRestaurantClick(restaurant.sellerID)}
+                  >
+                    <div className='restaurant-card-image'>
+                      <img 
+                        src={getRestaurantImage(restaurant, url) || 'https://via.placeholder.com/400x200?text=Restaurant'} 
+                        alt={restaurant.storeName}
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
+                        }}
+                      />
+                    </div>
 
-          {/* Categories */}
-          <div className='categories-list'>
-            <label className='category-item'>
-              <input
-                type='radio'
-                name='category'
-                value='All'
-                onChange={() => setSelectedCategory('All')}
-                checked={selectedCategory === 'All'}
-              />
-              <span className='category-name'>All</span>
-              <span className='category-count'>({food_list?.length || 0})</span>
-            </label>
-            {categories.map((category, index) => (
-              <label key={index} className='category-item'>
-                <input
-                  type='radio'
-                  name='category'
-                  value={category.name}
-                  onChange={() => setSelectedCategory(category.name)}
-                  checked={selectedCategory === category.name}
-                />
-                <span className='category-name'>{category.name}</span>
-                <span className='category-count'>({category.count})</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className='restaurant-main'>
-          <div className='restaurants-header'>
-            <h2>{filteredFoods.length} Dishes</h2>
-            <div className='restaurants-count-divider'></div>
-          </div>
-
-          <div className='foods-grid'>
-            {filteredFoods.map((food) => (
-              <div
-                key={food._id}
-                className='food-card'
-                onClick={() => handleFoodClick(food._id)}
-              >
-                <div className='food-card-image'>
-                  <img src={url + "/images/" + food.image} alt={food.name} />
-                  <div className='add-btn'>+</div>
-                </div>
-
-                <div className='food-card-body'>
-                  <h3>{food.name}</h3>
-                  <p className='food-description'>{food.description}</p>
-                  <div className='food-price-rating'>
-                    <span className='food-price'>{(food.price * 2500).toLocaleString('vi-VN')}đ</span>
-                    <div className='food-rating'>
-                      <span className='star-icon'>⭐</span>
-                      <span>4.5</span>
+                    <div className='restaurant-card-body'>
+                      <h3>{restaurant.storeName}</h3>
+                      <p className='restaurant-address'>{restaurant.storeAddress}</p>
+                      {restaurant.storeDescription && (
+                        <p className='restaurant-description'>{restaurant.storeDescription}</p>
+                      )}
+                      <div className='restaurant-info'>
+                        {restaurant.categories && restaurant.categories.length > 0 && (
+                          <div className='restaurant-categories'>
+                            {restaurant.categories.slice(0, 3).map((cat, idx) => (
+                              <span key={idx} className='category-tag'>{cat}</span>
+                            ))}
+                          </div>
+                        )}
+                        {restaurant.averageRating > 0 && (
+                          <div className='restaurant-rating'>
+                            <span className='star-icon'>⭐</span>
+                            <span>{restaurant.averageRating.toFixed(1)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {filteredFoods.length === 0 && (
-            <div className='no-restaurants'>
-              <p>No dishes found</p>
-            </div>
+              {filteredRestaurants.length === 0 && (
+                <div className='no-restaurants'>
+                  <p>No restaurants found</p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className='restaurant-pagination'>
+                  <button
+                    className='pagination-btn'
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    ←
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    className='pagination-btn'
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    →
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
