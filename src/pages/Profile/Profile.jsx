@@ -2,6 +2,7 @@ import { useContext, useEffect, useState, useCallback } from "react";
 import "./Profile.css";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const initialFormState = {
   name: "",
@@ -14,33 +15,50 @@ const initialFormState = {
 };
 
 const Profile = () => {
-  const { token } = useContext(StoreContext);
+  const { token, url } = useContext(StoreContext);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(initialFormState);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  const loadProfile = useCallback(() => {
+  const loadProfile = useCallback(async () => {
     if (!token) {
       setForm(initialFormState);
       setLoading(false);
       return;
     }
 
-    // Chỉ load từ localStorage nếu có data đã lưu
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      try {
-        setForm(JSON.parse(savedProfile));
-      } catch (err) {
-        console.error("Error parsing saved profile:", err);
+    setLoading(true);
+    try {
+      // Fetch profile from backend API
+      const response = await axios.get(`${url}/api/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        const userData = response.data.data;
+        // Map backend fields to form fields
+        setForm({
+          name: userData.name || "",
+          email: userData.email || "",
+          dob: userData.dob ? userData.dob.split('T')[0] : "", // Format date
+          address: userData.address || "",
+          gender: userData.gender || "",
+          phone: userData.phoneNumber || "",
+          profileImage: userData.profileImage ? `${url}/uploads/avatars/${userData.profileImage}` : "",
+        });
+      } else {
+        toast.error("Failed to load profile");
         setForm(initialFormState);
       }
-    } else {
-      // Nếu chưa có data, để trống
+    } catch (err) {
+      console.error("Error loading profile:", err);
+      // Fallback to empty form
       setForm(initialFormState);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [token]);
+  }, [token, url]);
 
   useEffect(() => {
     loadProfile();
@@ -51,33 +69,138 @@ const Profile = () => {
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  const onImage = (e) => {
+  const onImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setForm((f) => ({ ...f, profileImage: reader.result }));
-    };
-    reader.readAsDataURL(file);
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("⚠️ Please select an image file");
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("⚠️ Image size should be less than 5MB");
+      return;
+    }
+    
+    // Upload to backend
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await axios.post(`${url}/api/user/upload-avatar`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.success) {
+        // Update form with uploaded image URL
+        setForm((f) => ({ ...f, profileImage: response.data.fullUrl }));
+        toast.success("✅ Image uploaded successfully!");
+      } else {
+        toast.error("Failed to upload image");
+      }
+    } catch (err) {
+      console.error("Image upload error:", err);
+      toast.error("⚠️ Failed to upload image");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
-  const onSave = (e) => {
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Cancel edit - reload from localStorage
+      loadProfile();
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const onSave = async (e) => {
     e.preventDefault();
     
-    // Chỉ cho lưu khi đã đăng nhập
+    // Check authentication
     if (!token) {
-        toast.error("Please login to save profile");
+        toast.error("⚠️ Please login to save profile");
         return;
     }
 
+    // Validate required fields
+    const requiredFields = {
+      name: 'Full name',
+      email: 'Email',
+      phone: 'Phone',
+      address: 'Address'
+    };
+
+    const missingFields = [];
+    Object.entries(requiredFields).forEach(([field, label]) => {
+      if (!form[field] || form[field].trim() === '') {
+        missingFields.push(label);
+      }
+    });
+
+    if (missingFields.length > 0) {
+      toast.error(`⚠️ Please fill in: ${missingFields.join(', ')}`);
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      toast.error("⚠️ Please enter a valid email address");
+      return;
+    }
+
+    // Validate phone format (Vietnamese phone)
+    const phoneRegex = /^(\+84|0)[0-9]{9,10}$/;
+    if (!phoneRegex.test(form.phone)) {
+      toast.error("⚠️ Please enter a valid phone number (+84 or 0 + 9-10 digits)");
+      return;
+    }
+
+    setLoading(true);
     try {
-      // Lưu vào localStorage (FE storage)
-      localStorage.setItem('userProfile', JSON.stringify(form));
-      toast.success("Profile saved successfully");
-      setIsEditing(false); // Thoát chế độ edit sau khi save
+      // Extract filename from profileImage URL if it exists
+      let profileImageFilename = "";
+      if (form.profileImage) {
+        const urlParts = form.profileImage.split('/');
+        profileImageFilename = urlParts[urlParts.length - 1];
+      }
+
+      // Prepare data for backend (map to backend field names)
+      const updateData = {
+        name: form.name,
+        email: form.email,
+        dob: form.dob,
+        address: form.address,
+        gender: form.gender,
+        phoneNumber: form.phone,
+        profileImage: profileImageFilename
+      };
+
+      const response = await axios.put(`${url}/api/user/profile`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        toast.success("✅ Profile updated successfully!");
+        setIsEditing(false);
+        // Reload profile to get updated data
+        loadProfile();
+      } else {
+        toast.error(response.data.message || "Failed to update profile");
+      }
     } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong");
+      console.error("Save profile error:", err);
+      toast.error("⚠️ Failed to save profile");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,17 +232,29 @@ const Profile = () => {
             ) : (
               <div className="avatar-placeholder">No Image</div>
             )}
-            {isEditing && (
-              <>
-                <input type="file" accept="image/*" onChange={onImage} />
-                <p style={{ fontSize: "12px", color: "#999", marginTop: "8px" }}>
-                  Chọn ảnh
-                  <br />
-                  chưa chọn ảnh nào
-                </p>
-              </>
-            )}
           </div>
+          {isEditing && (
+            <div className="image-upload-section">
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={onImage} 
+                id="profile-image-input"
+                style={{ display: 'none' }}
+                disabled={uploadingImage}
+              />
+              <label 
+                htmlFor="profile-image-input" 
+                className="upload-label"
+                style={{ opacity: uploadingImage ? 0.6 : 1, cursor: uploadingImage ? 'not-allowed' : 'pointer' }}
+              >
+                {uploadingImage ? "⏳ Uploading..." : "📷 Choose Image"}
+              </label>
+              <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", textAlign: "center" }}>
+                {uploadingImage ? "Please wait..." : form.profileImage ? "Image uploaded ✓" : "No image selected"}
+              </p>
+            </div>
+          )}
         </div>
         <div className="profile-right">
           <label>
@@ -189,12 +324,18 @@ const Profile = () => {
 
           <div className="profile-actions">
             {!isEditing ? (
-              <button type="button" className="btn-edit" onClick={() => setIsEditing(true)}>Edit Profile</button>
+              <button type="button" className="btn-edit" onClick={handleEditToggle}>
+                ✏️ Edit Profile
+              </button>
             ) : (
-              <>
-                <button type="submit" className="btn-save">Save</button>
-                <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)}>Cancel</button>
-              </>
+              <div className="edit-actions">
+                <button type="submit" className="btn-save" disabled={loading || uploadingImage}>
+                  {loading ? "⏳ Saving..." : "💾 Save Edit"}
+                </button>
+                <button type="button" className="btn-cancel" onClick={handleEditToggle} disabled={loading}>
+                  ❌ Cancel
+                </button>
+              </div>
             )}
           </div>
         </div>

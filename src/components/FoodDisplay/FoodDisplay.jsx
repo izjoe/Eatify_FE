@@ -19,19 +19,24 @@ const FoodDisplay = ({ category }) => {
       <h2>Top dishes near you</h2>
       <div className="food-display-list">
         {food_list.map((item, index) => {
+          // ✅ Safe checks - prevent undefined errors
+          if (!item || !item.name || !item.category) {
+            return null;
+          }
+          
           // Logic lọc:
           // 1. Kiểm tra Category
-          // 2. Kiểm tra tên món ăn với biến safeSearch (đảm bảo không bao giờ null)
+          // 2. Kiểm tra tên món ăn với biến safeSearch
           if (
             (category === "All" || category === item.category) &&
             item.name.toLowerCase().includes(safeSearch.toLowerCase())
           ) {
             return (
               <FoodItem
-                key={index}
+                key={item._id || index}
                 id={item._id}
                 name={item.name}
-                description={item.description}
+                description={item.description || ""}
                 price={item.price}
                 image={item.image}
               />

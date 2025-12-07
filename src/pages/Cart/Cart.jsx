@@ -1,20 +1,57 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import "./Cart.css";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Cart = () => {
   const {
     food_list,
     cartItems,
-    setCartItems,
-    addToCart,
     removeFromCart,
     getTotalCartAmount,
-    url
+    url,
+    token
   } = useContext(StoreContext);
 
   const navigate=useNavigate();
+
+  const handleProceedToCheckout = async () => {
+    // Check authentication
+    if (!token) {
+      toast.error("⚠️ Please sign in first!");
+      return;
+    }
+
+    try {
+      // Call API to get profile and validate required fields
+      const response = await axios.get(`${url}/api/user/profile`, {
+        headers: { token }
+      });
+
+      if (!response.data.success) {
+        toast.error("⚠️ Failed to load profile. Please try again.");
+        return;
+      }
+
+      const { isComplete, missingFields } = response.data;
+
+      if (!isComplete) {
+        toast.error(`⚠️ Please complete your profile first! Missing: ${missingFields.join(', ')}`);
+        navigate('/profile');
+        return;
+      }
+
+      // All validations passed - proceed to checkout
+      navigate('/order');
+      
+    } catch (error) {
+      console.error("Profile validation error:", error);
+      toast.error("⚠️ Please complete your profile first!");
+      navigate('/profile');
+    }
+  };
 
   return (
     <div className="cart">
@@ -29,10 +66,10 @@ const Cart = () => {
         </div>
         <br />
         <hr />
-        {food_list.map((item, index) => {
+        {food_list.map((item) => {
           if (cartItems[item._id] > 0) {
             return (
-              <div>
+              <div key={item._id}>
                 <div className="cart-items-title cart-items-item">
                   <img src={url+"/images/"+item.image} alt="" />
                   <p>{item.name}</p>
@@ -58,7 +95,7 @@ const Cart = () => {
               <b>{getTotalCartAmount() === 0 ? 0 : (getTotalCartAmount() * 2500).toLocaleString('vi-VN')}đ</b>
             </div>
           </div>
-          <button onClick={()=>navigate('/order')}>PROCEED TO CHECKOUT</button>
+          <button onClick={handleProceedToCheckout}>PROCEED TO CHECKOUT</button>
         </div>
         <div className="cart-promocode">
           <div>

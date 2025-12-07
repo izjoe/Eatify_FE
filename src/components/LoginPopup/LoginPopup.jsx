@@ -13,6 +13,7 @@ const LoginPopup = ({ setShowLogin }) => {
   const [currentState, setCurrentState] = useState("Login");
   // State riêng để chọn role khi đăng ký
   const [roleSelection, setRoleSelection] = useState("buyer");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [data, setData] = useState({
     name: "",
@@ -28,6 +29,38 @@ const LoginPopup = ({ setShowLogin }) => {
 
   const onLogin = async (event) => {
     event.preventDefault();
+    console.log("🔵 Form submitted!", currentState, data);
+    
+    setIsLoading(true);
+    
+    // ✅ Frontend validation
+    if (currentState === "Sign Up") {
+      if (!data.name || !data.email || !data.password) {
+        toast.error("Please fill in all fields");
+        setIsLoading(false);
+        return;
+      }
+      if (data.password.length < 8) {
+        toast.error("Password must be at least 8 characters");
+        setIsLoading(false);
+        return;
+      }
+      const hasUpperCase = /[A-Z]/.test(data.password);
+      const hasLowerCase = /[a-z]/.test(data.password);
+      const hasNumber = /[0-9]/.test(data.password);
+      if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+        toast.error("Password must contain uppercase, lowercase, and numbers");
+        setIsLoading(false);
+        return;
+      }
+    } else {
+      if (!data.email || !data.password) {
+        toast.error("Please enter email and password");
+        setIsLoading(false);
+        return;
+      }
+    }
+    
     let newUrl = url;
     if (currentState === "Login") {
       newUrl += "/api/user/login";
@@ -35,54 +68,102 @@ const LoginPopup = ({ setShowLogin }) => {
       newUrl += "/api/user/register";
     }
 
-    // Nếu là đăng ký, gửi kèm roleSelection
     const payload = currentState === "Sign Up" ? { ...data, role: roleSelection } : data;
+    console.log("Sending payload to:", newUrl, payload);
 
     try {
         const response = await axios.post(newUrl, payload);
-        if (response.data.success) {
-            setToken(response.data.token);
-            localStorage.setItem("token", response.data.token);
+        console.log("Response:", response.status, response.data);
+        
+        // ================================
+        // 📝 SIGNUP FLOW
+        // ================================
+        if (currentState === "Sign Up") {
+          // Backend should return 201 for successful registration
+          if (response.status === 201 || response.data.success === true) {
+            console.log("Signup successful! Role saved:", response.data.role);
+            toast.success("Registration successful! Please login.");
             
-            // --- CẬP NHẬT ROLE ---
-            console.log("API Response:", response.data); // DEBUG
-            let roleToSet = response.data.role;
+            // Switch to login form
+            setCurrentState("Login");
+            setData({ name: "", email: "", password: "" });
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // ================================
+        // 🔐 LOGIN FLOW
+        // ================================
+        if (currentState === "Login") {
+          if (response.status === 200 || response.data.success === true) {
+            const { token, role, userID, name } = response.data;
             
-            // Nếu là Sign Up, dùng roleSelection từ form
-            if (currentState === "Sign Up") {
-                roleToSet = roleSelection;
-                console.log("Sign Up - Setting role to:", roleToSet); // DEBUG
+            console.log("Login response:", { token: token?.substring(0, 20), role, userID, name });
+            
+            // Validate token
+            if (!token) {
+              toast.error("No authentication token received");
+              setIsLoading(false);
+              return;
+            }
+            
+            // Validate and normalize role
+            let userRole = "buyer"; // Default fallback
+            if (role === "seller" || role === "buyer") {
+              userRole = role;
             } else {
-                // Nếu là Login và backend trả về role, dùng nó
-                if (response.data.role && response.data.role !== "user") {
-                    roleToSet = response.data.role;
-                    console.log("Login - Setting role from backend:", roleToSet); // DEBUG
-                } else {
-                    // Fallback: lấy từ localStorage nếu có
-                    roleToSet = localStorage.getItem("role") || "buyer";
-                    console.log("Login - Setting role from localStorage:", roleToSet); // DEBUG
-                }
+              console.warn("Invalid role from server:", role, "- defaulting to buyer");
             }
             
-            setRole(roleToSet);
-            localStorage.setItem("role", roleToSet);
-            // ---------------------
-
-            if (response.data.data) {
-                try {
-                localStorage.setItem("profileData", JSON.stringify(response.data.data));
-                } catch (e) {
-                    // Log the error for debugging if saving profile data fails
-                    console.warn("Unable to store profileData in localStorage:", e);
-                }
-            }
-            toast.success("Login Successfully")
+            console.log("Saving to localStorage:", { userRole, userID, name });
+            
+            // Save to localStorage FIRST (synchronous)
+            localStorage.setItem("token", token);
+            localStorage.setItem("role", userRole);
+            if (userID) localStorage.setItem("userID", userID);
+            if (name) localStorage.setItem("userName", name);
+            
+            // Update React context
+            setToken(token);
+            setRole(userRole);
+            
+            console.log("All data saved. Role:", userRole);
+            
+            toast.success("Login successful!");
+            setIsLoading(false);
             setShowLogin(false);
-        } else {
-            toast.error(response.data.message);
+            
+            // Force reload to ensure App.jsx reads correct role from localStorage
+            console.log("Redirecting to", userRole === "seller" ? "/seller-dashboard" : "/");
+            setTimeout(() => {
+              window.location.href = userRole === "seller" ? "/seller-dashboard" : "/";
+            }, 300);
+            return;
+          }
         }
     } catch (error) {
-        toast.error("Network Error");
+        console.error("Error:", error.response?.data || error.message);
+        setIsLoading(false);
+        
+        // Special case: Some axios versions treat 201 as error
+        if (error.response?.status === 201 && currentState === "Sign Up") {
+          console.log("Signup successful (201 in catch)");
+          toast.success("Registration successful! Please login.");
+          setCurrentState("Login");
+          setData({ name: "", email: "", password: "" });
+          return;
+        }
+        
+        // Extract error message
+        const errorMsg = 
+          error.response?.data?.msg || 
+          error.response?.data?.message || 
+          error.response?.data?.error ||
+          error.message || 
+          "Cannot connect to server";
+        
+        toast.error(errorMsg);
     }
   };
 
@@ -117,15 +198,23 @@ const LoginPopup = ({ setShowLogin }) => {
              </div>
           )}
         </div>
-        <button type="submit">{currentState === "Sign Up" ? "Create Account" : "Login"}</button>
+        <button type='submit' disabled={isLoading}>
+          {isLoading ? "Loading..." : (currentState === "Sign Up" ? "Create account" : "Login")}
+        </button>
         <div className="login-popup-condition">
           <input type="checkbox" required />
           <p>By continuing, i agree to the terms of use & privacy policy.</p>
         </div>
         {currentState === "Login" ? (
-          <p>Create a new account? <span onClick={() => setCurrentState("Sign Up")}>Click here</span></p>
+          <p>Create a new account? <span onClick={() => {
+            setCurrentState("Sign Up");
+            setIsLoading(false);
+          }}>Click here</span></p>
         ) : (
-          <p>Already have an account? <span onClick={() => setCurrentState("Login")}>Login here</span></p>
+          <p>Already have an account? <span onClick={() => {
+            setCurrentState("Login");
+            setIsLoading(false);
+          }}>Login here</span></p>
         )}
       </form>
     </div>

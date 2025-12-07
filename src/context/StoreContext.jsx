@@ -7,8 +7,8 @@ export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
-  // Lưu ý: Bạn nên dùng process.env.VITE_API_URL nếu có, còn không thì giữ link cứng này
-  const url = "https://food-delivery-backend-5b6g.onrender.com"; 
+  // ✅ Sử dụng VITE_API_URL hoặc localhost cho development
+  const url = import.meta.env.VITE_API_URL || "http://localhost:4000";
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [food_list, setFoodList] = useState([]);
 

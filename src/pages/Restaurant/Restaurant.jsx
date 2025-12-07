@@ -1,6 +1,5 @@
-import { useEffect, useState, useCallback, useMemo, useContext } from 'react';
+import { useEffect, useState, useMemo, useContext } from 'react';
 import './Restaurant.css';
-import { assets } from '../../assets/frontend_assets/assets';
 import { useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 

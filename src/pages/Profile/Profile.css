@@ -144,6 +144,12 @@
   gap: 12px;
 }
 
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
 .btn-save, .btn-edit, .btn-cancel {
   padding: 12px 24px;
   border: none;
@@ -152,34 +158,76 @@
   font-weight: 600;
   font-size: 0.95rem;
   font-family: 'Outfit', sans-serif;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .btn-save {
   background-color: tomato;
   color: white;
+  flex: 1;
 }
 
 .btn-save:hover {
   background-color: #ff6347;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 99, 71, 0.3);
 }
 
 .btn-edit {
   background-color: #4CAF50;
   color: white;
+  width: 100%;
 }
 
 .btn-edit:hover {
   background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
 }
 
 .btn-cancel {
   background-color: #999;
   color: white;
+  flex: 1;
 }
 
 .btn-cancel:hover {
   background-color: #777;
+  transform: translateY(-2px);
+}
+
+/* Image Upload Section */
+.image-upload-section {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.upload-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #2196F3;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.upload-label:hover {
+  background-color: #1976D2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+/* Disabled Input Styles */
+.profile-right input:disabled,
+.profile-right select:disabled,
+.profile-right textarea:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+  border-color: #e0e0e0;
 }
 
 /* Responsive */
@@ -191,5 +239,9 @@
 
   .profile-left {
     width: 100%;
+  }
+  
+  .edit-actions {
+    flex-direction: column;
   }
 }
