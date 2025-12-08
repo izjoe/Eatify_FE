@@ -4,7 +4,7 @@ import { StoreContext } from '../../context/StoreContext';
 import { assets } from '../../assets/frontend_assets/assets';
 import './SellerNavbar.css';
 
-const SellerNavbar = () => {
+const SellerNavbar = ({ showProfileReminder }) => {
   const { setToken, setRole } = useContext(StoreContext);
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState('dashboard');
@@ -64,6 +64,7 @@ const SellerNavbar = () => {
           onClick={() => handleMenuClick('profile', '/seller-profile')}
         >
           <span>Profile</span>
+          {showProfileReminder && <span className="profile-badge">!</span>}
         </div>
 
         <div
