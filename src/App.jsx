@@ -26,6 +26,7 @@ import SellerRevenue from './pages/SellerPages/SellerRevenue/SellerRevenue'
 import SellerProfile from './pages/SellerPages/SellerProfile/SellerProfile'
 import SellerPromotions from './pages/SellerPages/SellerPromotions/SellerPromotions'
 import SellerSettings from './pages/SellerPages/SellerSettings/SellerSettings'
+import StoreSetup from './pages/SellerPages/StoreSetup/StoreSetup'
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -43,6 +44,7 @@ const App = () => {
       <>
         <SellerLayout>
           <Routes>
+            <Route path='/store-setup' element={<StoreSetup />} />
             <Route path='/seller-dashboard' element={<SellerDashboard />} />
             <Route path='/seller-orders' element={<SellerOrders />} />
             <Route path='/manage-menu' element={<ManageMenu />} />

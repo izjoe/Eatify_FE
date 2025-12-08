@@ -265,7 +265,7 @@ const FoodDetail = () => {
           {food.seller && (
             <div className="sold-by-section">
               <h4>Cung cấp bởi:</h4>
-              <Link to={`/restaurant/${food.seller.sellerId}`} className="seller-info">
+              <Link to={`/restaurant/${food.seller.sellerID || food.seller.sellerId}`} className="seller-info">
                 <div className="seller-avatar">
                   {food.seller.storeImage ? (
                     <img src={url + "/images/" + food.seller.storeImage} alt={food.seller.storeName} />

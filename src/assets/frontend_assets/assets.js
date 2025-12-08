@@ -126,6 +126,7 @@ import dimsum_nhat_ban_hana from './dimsum_nhật_bản_hana.jpg'
 import banh_mi_healthy_corner from './bánh_mì_healthy_corner.jpg'
 import pizza_pasta from './pizza_pasta.jpg'
 import sweet_corner from './sweet_corner.jpg'
+import sushi_sakura from './sushi_sakura.jpg'
 
 import add_icon_white from './add_icon_white.png'
 import add_icon_green from './add_icon_green.png'
@@ -285,6 +286,7 @@ export const restaurant_images = {
     "Healthy & Bánh Mì Corner": banh_mi_healthy_corner,
     "Pizza & Pasta House": pizza_pasta,
     "Sweet Corner": sweet_corner,
+    "Sushi Sakura": sushi_sakura,
     // Tên alias nếu cần
     "green_salad_corner": green_salad_corner,
     "quan_an_ngon_sai_gon": quan_an_ngon_sai_gon,
@@ -294,7 +296,8 @@ export const restaurant_images = {
     "dimsum_nhat_ban_hana": dimsum_nhat_ban_hana,
     "banh_mi_healthy_corner": banh_mi_healthy_corner,
     "pizza_pasta": pizza_pasta,
-    "sweet_corner": sweet_corner
+    "sweet_corner": sweet_corner,
+    "sushi_sakura": sushi_sakura
 };
 
 // Mapping từ tên món ăn (backend) sang ảnh local

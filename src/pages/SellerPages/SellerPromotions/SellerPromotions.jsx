@@ -1,25 +1,16 @@
 import './SellerPromotions.css';
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { StoreContext } from '../../../context/StoreContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const SellerPromotions = () => {
-  const [promotions, setPromotions] = useState([
-    {
-      id: 1,
-      title: 'Giảm 20% cho đơn hàng trên 200k',
-      code: 'DISCOUNT20',
-      discount: 20,
-      expireDate: '31/12/2025',
-      status: 'active'
-    },
-    {
-      id: 2,
-      title: 'Giảm 10% cho thành viên mới',
-      code: 'NEWUSER10',
-      discount: 10,
-      expireDate: '30/11/2025',
-      status: 'expired'
-    }
-  ]);
+  const { url, token } = useContext(StoreContext);
+  
+  const [loading, setLoading] = useState(true);
+  const [storeData, setStoreData] = useState(null);
+  // Khởi tạo promotions rỗng - không có sample data
+  const [promotions, setPromotions] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -29,6 +20,35 @@ const SellerPromotions = () => {
     discount: '',
     expireDate: ''
   });
+
+  // Fetch store and promotions data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!token) return;
+      
+      setLoading(true);
+      
+      try {
+        // Fetch store info
+        const storeResponse = await axios.get(`${url}/api/seller/store/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (storeResponse.data.ok && storeResponse.data.store) {
+          setStoreData(storeResponse.data.store);
+          
+          // TODO: Fetch promotions from API when endpoint is available
+          // For now, promotions start empty until seller creates them
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [token, url]);
 
   const handleOpenModal = () => {
     setFormData({ title: '', code: '', discount: '', expireDate: '' });
@@ -57,7 +77,7 @@ const SellerPromotions = () => {
 
   const handleSavePromo = () => {
     if (!formData.title || !formData.code || !formData.discount || !formData.expireDate) {
-      alert('Vui lòng điền đầy đủ thông tin');
+      toast.error('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
@@ -69,20 +89,24 @@ const SellerPromotions = () => {
             : promo
         )
       );
+      toast.success('Đã cập nhật khuyến mãi!');
     } else {
       const newPromo = {
-        id: Math.max(...promotions.map(p => p.id), 0) + 1,
+        id: Date.now(), // Use timestamp as unique ID
         ...formData,
         status: 'active'
       };
       setPromotions(prev => [newPromo, ...prev]);
+      toast.success('Đã tạo khuyến mãi mới!');
     }
 
     setShowModal(false);
   };
 
   const handleDeletePromo = (id) => {
+    if (!window.confirm('Bạn có chắc muốn xóa khuyến mãi này?')) return;
     setPromotions(prev => prev.filter(promo => promo.id !== id));
+    toast.success('Đã xóa khuyến mãi!');
   };
 
   const handleCloseModal = () => {
@@ -95,6 +119,17 @@ const SellerPromotions = () => {
     return expireDate < new Date();
   };
 
+  if (loading) {
+    return (
+      <div className="seller-promotions">
+        <div className="promotions-loading">
+          <div className="loading-spinner"></div>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="seller-promotions">
       <div className="promotions-header">
@@ -105,7 +140,16 @@ const SellerPromotions = () => {
       </div>
 
       <div className="promotions-container">
-        {promotions.map((promo) => {
+        {promotions.length === 0 ? (
+          <div className="empty-promotions">
+            <p>🎁 Chưa có khuyến mãi nào</p>
+            <p className="empty-hint">Tạo khuyến mãi để thu hút khách hàng!</p>
+            <button className="create-first-btn" onClick={handleOpenModal}>
+              + Tạo khuyến mãi đầu tiên
+            </button>
+          </div>
+        ) : (
+          promotions.map((promo) => {
           const expired = isExpired(promo.expireDate);
           const badgeClass = expired ? 'expired' : 'active';
           const badgeText = expired ? 'EXPIRED' : 'ACTIVE';
@@ -133,7 +177,8 @@ const SellerPromotions = () => {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
 
       {showModal && (

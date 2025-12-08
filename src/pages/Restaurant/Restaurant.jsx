@@ -10,14 +10,25 @@ const ITEMS_PER_PAGE = 6;
 
 // Hàm lấy ảnh cho restaurant
 const getRestaurantImage = (restaurant, url) => {
-  // Thử tìm theo tên quán
+  // Thử tìm theo tên quán trong asset mapping trước
   if (restaurant.storeName && restaurant_images[restaurant.storeName]) {
     return restaurant_images[restaurant.storeName];
   }
-  // Fallback về backend URL nếu có
+  
+  // Nếu có storeImage từ backend
   if (restaurant.storeImage) {
+    // Check if it's base64 image
+    if (restaurant.storeImage.startsWith('data:')) {
+      return restaurant.storeImage;
+    }
+    // Check if it's full URL
+    if (restaurant.storeImage.startsWith('http')) {
+      return restaurant.storeImage;
+    }
+    // Otherwise, it's a path on backend
     return `${url}/images/${restaurant.storeImage}`;
   }
+  
   return null;
 };
 
