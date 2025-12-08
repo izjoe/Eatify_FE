@@ -2,6 +2,7 @@ import { useState, useContext } from 'react'
 import { StoreContext } from './context/StoreContext'
 import Navbar from './components/Navbar/Navbar'
 import { Route, Routes } from 'react-router-dom'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home/Home'
 import Cart from './pages/Cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
@@ -42,6 +43,7 @@ const App = () => {
     console.log("Role is seller, showing SellerLayout"); // DEBUG
     return (
       <>
+        <ScrollToTop />
         <SellerLayout>
           <Routes>
             <Route path='/store-setup' element={<StoreSetup />} />
@@ -63,6 +65,7 @@ const App = () => {
   // Buyer Routes (default)
   return (
     <>
+      <ScrollToTop />
       {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
       <div className='app'>
         <Navbar setShowLogin={setShowLogin} />
