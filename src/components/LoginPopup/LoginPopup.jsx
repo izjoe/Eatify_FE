@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./LoginPopup.css";
 import { assets } from "../../assets/frontend_assets/assets";
@@ -9,6 +9,20 @@ import { toast } from "react-toastify";
 const LoginPopup = ({ setShowLogin }) => {
   // Lấy thêm hàm setRole từ Context
   const {url, setToken, setRole } = useContext(StoreContext);
+  
+  // Lock scroll when popup is mounted
+  useEffect(() => {
+    // Save current overflow style
+    const originalOverflow = document.body.style.overflow;
+    
+    // Lock scroll
+    document.body.style.overflow = 'hidden';
+    
+    // Cleanup: restore scroll when popup unmounts
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
   
   const [currentState, setCurrentState] = useState("Login");
   // State riêng để chọn role khi đăng ký
