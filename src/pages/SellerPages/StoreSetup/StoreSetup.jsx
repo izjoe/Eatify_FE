@@ -9,7 +9,7 @@ import axios from 'axios';
 import './StoreSetup.css';
 
 const StoreSetup = () => {
-  const { url, token, role, setToken, setRole } = useContext(StoreContext);
+  const { url, token, setToken, setRole } = useContext(StoreContext);
   const navigate = useNavigate();
   
   const [step, setStep] = useState(1); // 1: Store Info, 2: Add Menu Item
@@ -65,34 +65,32 @@ const StoreSetup = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        if (response.data.ok && response.data.store) {
-          setStoreData(response.data.store);
+        if (response.data.success && response.data.data) {
+          const store = response.data.data;
+          setStoreData(store);
           
           // Pre-fill form with existing data
           setStoreForm({
-            storeName: response.data.store.storeName || '',
-            storeDescription: response.data.store.storeDescription || '',
-            storeAddress: response.data.store.storeAddress || '',
-            storePhone: response.data.store.storePhone || '',
-            storeEmail: response.data.store.storeEmail || '',
-            storeImage: response.data.store.storeImage || '',
+            storeName: store.storeName || '',
+            storeDescription: store.storeDescription || '',
+            storeAddress: store.storeAddress || '',
+            storePhone: store.storePhone || '',
+            storeEmail: store.storeEmail || '',
+            storeImage: store.storeImage || '',
           });
           
-          // If store info is complete but no menu, go to step 2
-          const completeness = response.data.completeness;
-          if (completeness && !completeness.missingFields.some(f => 
-            ['storeName', 'storeDescription', 'storeAddress', 'storePhone', 'storeEmail', 'storeImage'].includes(f)
-          )) {
-            if (response.data.store.menuCount < 1) {
-              setStep(2);
-            } else {
-              // Store is complete, redirect to dashboard
-              navigate('/seller-dashboard');
-            }
+          // If store is complete (has name, address, image), go to step 2 or dashboard
+          if (store.isComplete) {
+            // Store is complete, redirect to dashboard
+            navigate('/seller-dashboard');
+          } else if (store.storeName && store.storeAddress) {
+            // Has basic info, go to step 2 (add menu)
+            setStep(2);
           }
         }
       } catch (error) {
         console.error('Error checking store:', error);
+        // 404 is expected for new sellers - don't show error
       }
     };
     
@@ -117,7 +115,7 @@ const StoreSetup = () => {
     e.preventDefault();
     
     // Validate required fields
-    const requiredFields = ['storeName', 'storeDescription', 'storeAddress', 'storePhone', 'storeEmail', 'storeImage'];
+    const requiredFields = ['storeName', 'storeAddress'];
     const missingFields = requiredFields.filter(f => !storeForm[f]?.trim());
     
     if (missingFields.length > 0) {
@@ -128,13 +126,27 @@ const StoreSetup = () => {
     setLoading(true);
     
     try {
-      const response = await axios.post(`${url}/api/seller/store`, storeForm, {
-        headers: { Authorization: `Bearer ${token}` }
+      // Use FormData for file upload
+      const formData = new FormData();
+      formData.append('storeName', storeForm.storeName);
+      formData.append('storeDescription', storeForm.storeDescription || '');
+      formData.append('storeAddress', storeForm.storeAddress);
+      
+      // If there's a new image file, append it
+      if (storeForm.storeImageFile) {
+        formData.append('storeImage', storeForm.storeImageFile);
+      }
+      
+      const response = await axios.post(`${url}/api/seller/store`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
       
-      if (response.data.ok) {
+      if (response.data.success) {
         toast.success('Thông tin cửa hàng đã được lưu!');
-        setStoreData(response.data.store);
+        setStoreData(response.data.data);
         setStep(2); // Move to menu step
       } else {
         toast.error(response.data.message || 'Lỗi khi lưu thông tin');
@@ -169,38 +181,54 @@ const StoreSetup = () => {
     setLoading(true);
     
     console.log('📤 Sending menu item to API:', {
-      url: `${url}/api/seller/store/${storeData.sellerID}/menu`,
       foodName: menuForm.foodName,
       category: menuForm.category,
       price: menuForm.price,
-      imageLength: menuForm.foodImage?.length || 0
     });
     
     try {
+      // Use FormData for file upload
+      const formData = new FormData();
+      formData.append('foodName', menuForm.foodName);
+      formData.append('description', menuForm.description);
+      formData.append('price', menuForm.price);
+      formData.append('category', menuForm.category);
+      formData.append('stock', menuForm.stock || 10);
+      
+      // If foodImage is base64, convert to blob
+      if (menuForm.foodImage && menuForm.foodImage.startsWith('data:')) {
+        const response = await fetch(menuForm.foodImage);
+        const blob = await response.blob();
+        formData.append('foodImage', blob, 'food-image.jpg');
+      }
+      
       const response = await axios.post(
-        `${url}/api/seller/store/${storeData.sellerID}/menu`,
-        menuForm,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${url}/api/food/add`,
+        formData,
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          } 
+        }
       );
       
       console.log('📥 API Response:', response.data);
       
-      if (response.data.ok) {
+      if (response.data.success) {
         toast.success('🎉 Chúc mừng! Cửa hàng của bạn đã sẵn sàng!');
         
-        // Check if store is now complete
-        if (response.data.storeCompleteness?.isComplete) {
-          setTimeout(() => {
-            navigate('/seller-dashboard');
-          }, 1500);
-        }
+        // Redirect to dashboard
+        setTimeout(() => {
+          navigate('/seller-dashboard');
+        }, 1500);
       } else {
         toast.error(response.data.message || 'Lỗi khi thêm món');
       }
     } catch (error) {
       console.error('Add menu item error:', error);
       console.error('Error response:', error.response?.data);
-      toast.error(error.response?.data?.message || 'Error adding menu item');
+      toast.error(error.response?.data?.message || 'Lỗi thêm món ăn');
     } finally {
       setLoading(false);
     }

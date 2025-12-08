@@ -36,9 +36,9 @@ const SellerLayout = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        if (response.data.ok) {
-          const store = response.data.store;
-          const isComplete = response.data.completeness?.isComplete || false;
+        if (response.data.success && response.data.data) {
+          const store = response.data.data;
+          const isComplete = store.isComplete || false;
           
           setStoreStatus({
             loading: false,

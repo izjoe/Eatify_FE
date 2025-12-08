@@ -39,8 +39,8 @@ const SellerProfile = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        if (response.data.ok && response.data.store) {
-          const store = response.data.store;
+        if (response.data.success && response.data.data) {
+          const store = response.data.data;
           setProfile({
             storeName: store.storeName || '',
             storeEmail: store.storeEmail || '',
@@ -105,18 +105,25 @@ const SellerProfile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const response = await axios.post(`${url}/api/seller/store`, {
-        storeName: tempProfile.storeName,
-        storeEmail: tempProfile.storeEmail,
-        storePhone: tempProfile.storePhone,
-        storeAddress: tempProfile.storeAddress,
-        storeDescription: tempProfile.storeDescription,
-        storeImage: tempProfile.storeImage,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      // Use FormData for multipart upload
+      const formData = new FormData();
+      formData.append('storeName', tempProfile.storeName);
+      formData.append('storeDescription', tempProfile.storeDescription || '');
+      formData.append('storeAddress', tempProfile.storeAddress);
+      
+      // If there's a new image file, append it
+      if (tempProfile.storeImageFile) {
+        formData.append('storeImage', tempProfile.storeImageFile);
+      }
+      
+      const response = await axios.post(`${url}/api/seller/store`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
       
-      if (response.data.ok) {
+      if (response.data.success) {
         setProfile(tempProfile);
         setIsEditing(false);
         toast.success('Cập nhật thông tin thành công!');
